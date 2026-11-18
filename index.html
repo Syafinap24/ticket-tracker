@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Personal Ticket Tracker & Realtime NOC</title>
+  <title>Personal NOC & Goals Tracker (198 Uniq Milestone)</title>
   
   <!-- Mobile & PWA Optimization -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0f172a">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎯</text></svg>">
 
   <!-- App Stylesheet -->
   <link rel="stylesheet" href="css/app.css">
@@ -23,256 +23,711 @@
 </head>
 <body>
 
-  <!-- App Header -->
-  <header class="app-header">
-    <div class="brand">
-      <div class="brand-icon">📡</div>
-      <div>
-        <div class="brand-title">Ticket & NOC Tracker</div>
-        <div class="brand-subtitle">Personal Dashboard • Mobile & Realtime Ready</div>
-      </div>
-    </div>
-    <div class="header-actions">
-      <div id="cloud-sync-status" class="btn btn-secondary btn-sm" style="cursor: pointer; border-radius: 20px; font-size: 11px; padding: 5px 12px;" title="Klik untuk Pengaturan Realtime Cloud Sync">
-        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748b; margin-right:5px;"></span> Mode Lokal
-      </div>
-      <button class="btn btn-secondary btn-sm" id="theme-toggle-btn">☀️ Light</button>
-      <button class="btn btn-primary btn-sm" id="btn-open-paste">📋 Paste Excel</button>
-    </div>
-  </header>
-
-  <!-- Desktop Top Navigation Tabs -->
-  <nav class="nav-tabs">
-    <button class="nav-tab active" data-tab="tickets">
-      <span>🎫</span> Dashboard Tiket
-    </button>
-    <button class="nav-tab" data-tab="realtime">
-      <span>⚡</span> Realtime Monitor
-    </button>
-    <button class="nav-tab" data-tab="backups">
-      <span>💾</span> Backup & Snapshot
-    </button>
-    <button class="nav-tab" data-tab="settings">
-      <span>⚙️</span> SLA & Reminder
-    </button>
-  </nav>
-
-  <!-- Main Container -->
-  <main class="main-container">
+  <!-- Full Modern Dashboard Layout (Left Sidebar + Center Main + Right Analytics Panel) -->
+  <div class="fitness-layout">
 
     <!-- ==========================================
-         TAB 1: DASHBOARD TIKET RFC & XLWO
+         1. LEFT SIDEBAR NAVIGATION (Desktop)
          ========================================== -->
-    <section id="section-tickets" class="tab-content">
-      
-      <!-- KPI Summary Grid -->
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-total">
-          <div class="kpi-label">Total Tiket</div>
-          <div class="kpi-value" id="kpi-total">0</div>
-          <div class="kpi-desc">Grup Tiket XLWO/RFC</div>
-        </div>
-        <div class="kpi-card kpi-reminder">
-          <div class="kpi-label">Perlu Tindakan</div>
-          <div class="kpi-value" id="kpi-reminder" style="color: var(--warning);">0</div>
-          <div class="kpi-desc">Reminder H-5 & H-25</div>
-        </div>
-        <div class="kpi-card kpi-partial">
-          <div class="kpi-label">Ada Partial</div>
-          <div class="kpi-value" id="kpi-partial" style="color: #a78bfa;">0</div>
-          <div class="kpi-desc">Butuh Dilanjutkan</div>
-        </div>
-        <div class="kpi-card kpi-done">
-          <div class="kpi-label">Done / Selesai</div>
-          <div class="kpi-value" id="kpi-done" style="color: var(--success);">0</div>
-          <div class="kpi-desc">Semua Site Done</div>
-        </div>
-        <div class="kpi-card kpi-expired">
-          <div class="kpi-label">Expired</div>
-          <div class="kpi-value" id="kpi-expired" style="color: var(--danger);">0</div>
-          <div class="kpi-desc">Melebihi SLA Periode</div>
+    <aside class="fitness-sidebar">
+      <div class="fitness-brand">
+        <div class="fitness-brand-logo">🎯</div>
+        <div>
+          <div class="fitness-brand-text">NOC Goals</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Personal Tracker</div>
         </div>
       </div>
 
-      <!-- Action & Filter Bar -->
-      <div class="action-bar">
-        <div class="search-filter-group">
-          <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-input" class="search-input" placeholder="Cari Site, Tower, IP, Hostname, Tiket...">
-          </div>
+      <nav class="fitness-nav-list">
+        <button class="fitness-nav-item active" data-tab="overview">
+          <span class="fitness-nav-icon">🏆</span>
+          <span>Overview & Goals</span>
+        </button>
+        <button class="fitness-nav-item" data-tab="generator">
+          <span class="fitness-nav-icon">📧</span>
+          <span>Generator Email</span>
+        </button>
+        <button class="fitness-nav-item" data-tab="tickets">
+          <span class="fitness-nav-icon">🎫</span>
+          <span>Tracker Tiket SLA</span>
+        </button>
+        <button class="fitness-nav-item" data-tab="realtime">
+          <span class="fitness-nav-icon">⚡</span>
+          <span>Realtime Telemetry</span>
+        </button>
+        <button class="fitness-nav-item" data-tab="backups">
+          <span class="fitness-nav-icon">💾</span>
+          <span>Backup & Snapshot</span>
+        </button>
+        <button class="fitness-nav-item" data-tab="settings">
+          <span class="fitness-nav-icon">⚙️</span>
+          <span>SLA & Settings</span>
+        </button>
+      </nav>
 
-          <select id="status-filter" class="filter-select">
-            <option value="">Semua Status</option>
-            <option value="REMINDER">⚠️ Perlu Tindakan (Reminder H-5 / H-25)</option>
-            <option value="PARTIAL">🟣 Ada Partial (Lanjutan)</option>
-            <option value="NOT_DONE">⏳ Belum Selesai</option>
-            <option value="DONE">🟢 Selesai (Done)</option>
-            <option value="EXPIRED">❌ Expired</option>
-          </select>
-
-          <select id="vendor-filter" class="filter-select">
-            <option value="ALL">Semua Vendor</option>
-          </select>
-        </div>
-
-        <div class="action-buttons">
-          <div class="view-tabs">
-            <button class="view-tab-btn active" id="btn-view-grouped">Grup Tiket</button>
-            <button class="view-tab-btn" id="btn-view-flat">Tabel Site</button>
-          </div>
-
-          <button class="btn btn-secondary btn-sm" id="btn-open-upload">
-            📤 Upload Excel/CSV
-          </button>
-          <button class="btn btn-secondary btn-sm" id="btn-export-csv" title="Download data saat ini ke CSV">
-            📥 Export CSV
-          </button>
-          <button class="btn btn-secondary btn-sm" id="btn-download-template" title="Download template format kolom Excel">
-            📄 Template
-          </button>
-        </div>
+      <div style="margin-top: auto; padding: 12px; background: rgba(249, 115, 22, 0.08); border-radius: 12px; border: 1px dashed rgba(249, 115, 22, 0.3);">
+        <div style="font-size: 11px; font-weight: 700; color: #ea580c; margin-bottom: 2px;">Target Pribadi:</div>
+        <div style="font-size: 12px; color: var(--text-main);" id="sidebar-target-indicator">198 Uniq Goals</div>
       </div>
-
-      <!-- Tickets Card Container (Grouped View) -->
-      <div id="tickets-container" class="ticket-list">
-        <!-- Rendered by app.js -->
-      </div>
-
-      <!-- Flat Table Container -->
-      <div id="flat-table-container" style="display: none; margin-top: 10px;">
-        <!-- Rendered by app.js -->
-      </div>
-
-    </section>
+    </aside>
 
     <!-- ==========================================
-         TAB 2: REALTIME MONITOR (EXTENSIBLE)
+         2. CENTER MAIN DASHBOARD
          ========================================== -->
-    <section id="section-realtime" class="tab-content" style="display: none;">
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
-          <div>
-            <h3 style="font-size: 16px; margin-bottom: 4px;">⚡ Realtime Telemetry & Data Stream</h3>
-            <p style="font-size: 12px; color: var(--text-muted);">
-              Modul ini disiapkan untuk data realtime yang nantinya akan kamu upload/stream. Terhubung ke status CSR, IP Loopback, Latency, dan BGP status.
-            </p>
+    <div class="fitness-main">
+
+      <!-- Top Header -->
+      <header class="fitness-header">
+        <div>
+          <div class="fitness-greeting-sub">Selamat Datang Kembali,</div>
+          <div class="fitness-greeting-title">Welcome Back! 🎉</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div class="fitness-search-box">
+            <span>🔍</span>
+            <input type="text" id="global-fitness-search" placeholder="Cari site, uniq, kota...">
           </div>
-          <div>
-            <button id="btn-toggle-live-telemetry" class="btn btn-primary btn-sm">▶️ Mulai Live Simulation</button>
+
+          <div id="cloud-sync-status" class="btn btn-secondary btn-sm" style="cursor: pointer; border-radius: 20px; font-size: 11px; padding: 6px 14px;" title="Pengaturan Cloud Realtime">
+            Mode Lokal
+          </div>
+
+          <button class="btn btn-secondary btn-sm" id="theme-toggle-btn" style="border-radius: 20px;">🌙 Dark</button>
+        </div>
+      </header>
+
+      <!-- TAB 1: OVERVIEW & GOALS (FITNESS ACHIEVEMENT DASHBOARD) -->
+      <section id="section-overview" class="tab-content">
+
+        <!-- Hero Activity Banner -->
+        <div class="fitness-hero-banner">
+          <div class="hero-banner-content">
+            <div class="hero-banner-title">Track Your Daily Activities & Uniq Goals</div>
+            <div class="hero-banner-desc">
+              Pantau progres penyelesaian <strong>198 Uniq Site</strong> personalmu. Setiap aktivitas yang kamu submit dan selesaikan akan otomatis tercatat ke dalam achievement goal harian.
+            </div>
+            <div class="hero-banner-badge" id="hero-milestone-badge">
+              🏆 Milestone: 0% Fulfill • 0 / 198 Uniq
+            </div>
           </div>
         </div>
 
-        <div style="background: var(--bg-primary); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--text-dim); border: 1px dashed var(--border-color);">
-          💡 <strong>Tips:</strong> Nantinya kamu bisa upload data JSON atau CSV telemetry berkala lewat script, curl, atau form upload, dan dashboard ini langsung update realtime tanpa reload!
-        </div>
-      </div>
-
-      <div id="realtime-list-container">
-        <!-- Rendered by app.js -->
-      </div>
-    </section>
-
-    <!-- ==========================================
-         TAB 3: BACKUP & SNAPSHOT MANAGER
-         ========================================== -->
-    <section id="section-backups" class="tab-content" style="display: none;">
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 16px;">
-        <h3 style="font-size: 16px; margin-bottom: 6px;">💾 Backup & Restore Mandiri</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-          Simpan seluruh database tiket dan konfigurasi ke file backup JSON, atau restore kapan saja jika ada perubahan.
-        </p>
-
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-          <button id="btn-download-json-backup" class="btn btn-primary">
-            📥 Download Backup (JSON)
-          </button>
+        <!-- 4 Vibrant Metric Cards (Sesuai Gambar Referensi) -->
+        <div class="fitness-metric-grid">
           
-          <button id="btn-restore-json-file" class="btn btn-secondary">
-            📤 Restore dari File JSON
-          </button>
-          <input type="file" id="input-restore-json" accept=".json" style="display: none;">
-        </div>
-      </div>
+          <!-- Card 1: Teal (Uniq Goals) -->
+          <div class="fitness-stat-card stat-card-teal">
+            <div class="stat-card-header">
+              <span>🎯 Uniq Goals</span>
+              <span id="metric-uniq-pct">0%</span>
+            </div>
+            <div>
+              <div class="stat-card-value" id="metric-uniq-value">0 / 198</div>
+              <div class="stat-card-sub" id="metric-uniq-sub">0% of your total goals</div>
+            </div>
+            <div class="stat-card-progress-bar">
+              <div class="stat-card-progress-fill" id="metric-uniq-bar" style="width: 0%;"></div>
+            </div>
+          </div>
 
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
-        <h3 style="font-size: 16px; margin-bottom: 6px;">🔄 Riwayat Auto-Snapshot (Safety Rollback)</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
-          Setiap kali kamu import file baru atau ubah status, sistem otomatis mencatat snapshot. Jika ada salah import, cukup klik tombol rollback.
-        </p>
+          <!-- Card 2: Orange (Done / Selesai) -->
+          <div class="fitness-stat-card stat-card-orange">
+            <div class="stat-card-header">
+              <span>🟢 Selesai (Done)</span>
+              <span>100% Target</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="stat-card-value" id="metric-done-value">0</div>
+                <div class="stat-card-sub">Site Terselesaikan</div>
+              </div>
+              <div id="metric-done-ring" style="width: 50px; height: 50px;">
+                <!-- SVG Ring -->
+              </div>
+            </div>
+          </div>
 
-        <div id="snapshots-list-container">
-          <!-- Rendered by app.js -->
+          <!-- Card 3: Coral / Pink (Partial / Lanjutan) -->
+          <div class="fitness-stat-card stat-card-coral">
+            <div class="stat-card-header">
+              <span>🟣 Partial (Lanjutan)</span>
+              <span>Perlu Follow-up</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="stat-card-value" id="metric-partial-value">0</div>
+                <div class="stat-card-sub">Nomor Tiket Berlanjut</div>
+              </div>
+              <div style="font-size: 28px; opacity: 0.85;">⚡</div>
+            </div>
+          </div>
+
+          <!-- Card 4: Purple (Urgent SLA Alerts) -->
+          <div class="fitness-stat-card stat-card-purple">
+            <div class="stat-card-header">
+              <span>⏱️ SLA Reminder</span>
+              <span>H-5 / H-25 Alert</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="stat-card-value" id="metric-urgent-value">0</div>
+                <div class="stat-card-sub">Tiket Mendekati Expire</div>
+              </div>
+              <div style="font-size: 28px; opacity: 0.85;">⚠️</div>
+            </div>
+          </div>
+
         </div>
-      </div>
-    </section>
+
+        <!-- Charts & Activity Row (2 Kolom) -->
+        <div class="fitness-charts-row">
+          
+          <!-- Left: Activity Progress Chart -->
+          <div class="fitness-chart-card">
+            <div class="chart-card-header">
+              <div class="chart-card-title">📊 Activity Progress (Mingguan)</div>
+              <span style="font-size: 11px; color: var(--text-muted);">Weekly Fulfillment</span>
+            </div>
+
+            <div class="activity-bars-container">
+              <div class="bar-column">
+                <div class="bar-pill" style="height: 45%;"></div>
+                <span class="bar-label">Mon</span>
+              </div>
+              <div class="bar-column">
+                <div class="bar-pill" style="height: 60%;"></div>
+                <span class="bar-label">Tue</span>
+              </div>
+              <div class="bar-column">
+                <div class="bar-pill" style="height: 75%;"></div>
+                <span class="bar-label">Wed</span>
+              </div>
+              <div class="bar-column">
+                <div class="bar-pill" style="height: 40%;"></div>
+                <span class="bar-label">Thu</span>
+              </div>
+              <div class="bar-column">
+                <div class="bar-pill highlight" style="height: 95%;"></div>
+                <span class="bar-label" style="color: #ea580c; font-weight: bold;">Fri</span>
+              </div>
+              <div class="bar-column">
+                <div class="bar-pill" style="height: 50%;"></div>
+                <span class="bar-label">Sat</span>
+              </div>
+              <div class="bar-column">
+                <div class="bar-pill" style="height: 30%;"></div>
+                <span class="bar-label">Sun</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px; font-size: 12px; color: var(--text-dim);">
+              <span>💡 Puncak aktivitas pada hari <strong>Jumat</strong> (95% target harian).</span>
+              <span id="activity-chart-summary">Avg: 4 site/hari</span>
+            </div>
+          </div>
+
+          <!-- Right: Status Breakdown Card -->
+          <div class="fitness-chart-card">
+            <div class="chart-card-header">
+              <div class="chart-card-title">🥧 Goal Status Breakdown</div>
+              <span style="font-size: 11px; color: var(--text-muted);" id="breakdown-total-lbl">Target: 198</span>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-around; padding: 10px 0;">
+              <div id="breakdown-donut-svg" style="width: 120px; height: 120px;">
+                <!-- Rendered by JS -->
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="width: 10px; height: 10px; border-radius: 50%; background: #10b981;"></span>
+                  <span>Done / Selesai: <strong id="donut-val-done">0</strong></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="width: 10px; height: 10px; border-radius: 50%; background: #8b5cf6;"></span>
+                  <span>Partial: <strong id="donut-val-partial">0</strong></span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="width: 10px; height: 10px; border-radius: 50%; background: #94a3b8;"></span>
+                  <span>Sisa Belum: <strong id="donut-val-pending">198</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 10px; margin-top: 8px; font-size: 11px; color: var(--text-muted); text-align: center;">
+              Estimasi selesai target 198: <strong id="estimated-days-lbl" style="color: #f97316;">0 Hari Kerja</strong>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Table: Uniq Goals & Activity Progress -->
+        <div class="generator-card">
+          <div class="generator-card-title">
+            <span>📋 Daftar Uniq Goals & Progres Penyelesaian</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm" id="btn-quick-to-generator">
+                📧 Buka Generator Email
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Uniq ID</th>
+                  <th>Site Name</th>
+                  <th>Kota / Wilayah</th>
+                  <th>Exe Plan</th>
+                  <th>Status Goal</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="overview-uniq-tbody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: GENERATOR EMAIL & DATA MASTER -->
+      <section id="section-generator" class="tab-content" style="display: none;">
+        
+        <div class="action-bar">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <h2 style="font-size: 16px; font-weight: 700; margin-right: 8px;">📧 Kelola Data Master ➔ Generate Email & Lampiran NE</h2>
+            <span style="font-size: 11px; padding: 3px 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 4px; color: #60a5fa;" id="gen-stats-badge">
+              0 Site Dipilih • 0 NE Terkait
+            </span>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn btn-primary btn-sm" id="btn-open-paste-master">
+              📋 Paste Data Master (33 Kolom)
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-open-paste-ne">
+              📎 Paste Data NE (3 Kolom)
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-load-demo-generator">
+              🔄 Load Contoh Demo
+            </button>
+          </div>
+        </div>
+
+        <div class="generator-grid">
+          
+          <!-- Left Column: Batch Config -->
+          <div>
+            <div class="generator-card">
+              <div class="generator-card-title">
+                <span>⚙️ Parameter Email (Batch)</span>
+                <span style="font-size: 11px; color: var(--text-dim);">Diisi Kolektif</span>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Vendor:</label>
+                <input type="text" id="gen-input-vendor" class="form-control" value="Huawei" placeholder="Contoh: Huawei / Ericsson / ZTE">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Scope of Work (SOW):</label>
+                <textarea id="gen-input-sow" class="form-control" style="min-height: 70px;" placeholder="Support Delete Configuration EBGP Multihop..."></textarea>
+              </div>
+
+              <div class="batch-form-grid">
+                <div class="form-group">
+                  <label class="form-label">MOP:</label>
+                  <input type="text" id="gen-input-mop" class="form-control" value="MOP-001" placeholder="MOP-xxx">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Date Submit:</label>
+                  <input type="date" id="gen-input-date" class="form-control">
+                </div>
+              </div>
+
+              <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 10px;">
+                <button class="btn btn-primary" id="btn-copy-email-html" style="width: 100%; margin-bottom: 8px;">
+                  📋 Salin Format Email (Outlook/Gmail)
+                </button>
+                <button class="btn btn-success" id="btn-push-to-tracker" style="width: 100%; margin-bottom: 8px;">
+                  🚀 Kirim ke Tracker Tiket (SLA)
+                </button>
+                <button class="btn btn-secondary btn-sm" id="btn-export-email-csv" style="width: 100%;">
+                  📥 Export ke CSV / Excel
+                </button>
+              </div>
+            </div>
+
+            <div class="generator-card" style="padding: 12px 16px;">
+              <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: flex; justify-content: space-between;">
+                <span>Database Lampiran NE:</span>
+                <span id="ne-database-count" style="color: var(--primary);">0 Record</span>
+              </div>
+              <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+                Data NE (Site ID, NE Name, Technology Domain) otomatis tersimpan. Setiap Site ID yang dicentang otomatis melampirkan seluruh NE miliknya.
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Column: Master Selection & Live Preview -->
+          <div>
+            <div class="generator-card">
+              <div class="generator-card-title">
+                <span>📋 Pilih Site dari Data Master</span>
+                <div style="display: flex; gap: 6px;">
+                  <button class="btn btn-secondary btn-sm" id="btn-select-all-sites">Pilih Semua</button>
+                  <button class="btn btn-secondary btn-sm" id="btn-deselect-all-sites">Batal Pilih</button>
+                </div>
+              </div>
+
+              <div style="margin-bottom: 10px;">
+                <input type="text" id="gen-search-master" class="form-control" style="font-size: 12px;" placeholder="Cari Site ID, Site Name, City, Hostname CSR, IP...">
+              </div>
+
+              <div class="table-responsive" style="max-height: 280px; overflow-y: auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 36px; text-align: center;">Pilih</th>
+                      <th>Site ID</th>
+                      <th>Site Name</th>
+                      <th>NE Terlampir</th>
+                      <th>City / Area</th>
+                      <th>Tower ID</th>
+                      <th>Hostname CSR</th>
+                      <th>Router IP</th>
+                      <th>Koneksi</th>
+                      <th>Plan Activity</th>
+                    </tr>
+                  </thead>
+                  <tbody id="gen-master-tbody">
+                    <!-- Rendered by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="generator-card">
+              <div class="generator-card-title">
+                <span>📧 Live Preview Tampilan Email & Lampiran</span>
+                <button class="btn btn-secondary btn-sm" id="btn-copy-preview-btn">
+                  📋 Salin HTML Email
+                </button>
+              </div>
+
+              <div class="email-preview-box" id="email-preview-container">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- TAB 3: DASHBOARD TIKET RFC & XLWO (SLA MONITORING) -->
+      <section id="section-tickets" class="tab-content" style="display: none;">
+        
+        <!-- KPI Summary Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card kpi-total">
+            <div class="kpi-label">Total Tiket</div>
+            <div class="kpi-value" id="kpi-total">0</div>
+            <div class="kpi-desc">Grup Tiket XLWO/RFC</div>
+          </div>
+          <div class="kpi-card kpi-reminder">
+            <div class="kpi-label">Perlu Tindakan</div>
+            <div class="kpi-value" id="kpi-reminder" style="color: var(--warning);">0</div>
+            <div class="kpi-desc">Reminder H-5 & H-25</div>
+          </div>
+          <div class="kpi-card kpi-partial">
+            <div class="kpi-label">Ada Partial</div>
+            <div class="kpi-value" id="kpi-partial" style="color: #a78bfa;">0</div>
+            <div class="kpi-desc">Butuh Dilanjutkan</div>
+          </div>
+          <div class="kpi-card kpi-done">
+            <div class="kpi-label">Done / Selesai</div>
+            <div class="kpi-value" id="kpi-done" style="color: var(--success);">0</div>
+            <div class="kpi-desc">Semua Site Done</div>
+          </div>
+          <div class="kpi-card kpi-expired">
+            <div class="kpi-label">Expired</div>
+            <div class="kpi-value" id="kpi-expired" style="color: var(--danger);">0</div>
+            <div class="kpi-desc">Melebihi SLA Periode</div>
+          </div>
+        </div>
+
+        <!-- Action & Filter Bar -->
+        <div class="action-bar">
+          <div class="search-filter-group">
+            <div class="search-input-wrapper">
+              <span class="search-icon">🔍</span>
+              <input type="text" id="search-input" class="search-input" placeholder="Cari Site, Tower, IP, Hostname, Tiket...">
+            </div>
+
+            <select id="status-filter" class="filter-select">
+              <option value="">Semua Status</option>
+              <option value="REMINDER">⚠️ Perlu Tindakan (Reminder H-5 / H-25)</option>
+              <option value="PARTIAL">🟣 Ada Partial (Lanjutan)</option>
+              <option value="NOT_DONE">⏳ Belum Selesai</option>
+              <option value="DONE">🟢 Selesai (Done)</option>
+              <option value="EXPIRED">❌ Expired</option>
+            </select>
+
+            <select id="vendor-filter" class="filter-select">
+              <option value="ALL">Semua Vendor</option>
+            </select>
+          </div>
+
+          <div class="action-buttons">
+            <div class="view-tabs">
+              <button class="view-tab-btn active" id="btn-view-grouped">Grup Tiket</button>
+              <button class="view-tab-btn" id="btn-view-flat">Tabel Site</button>
+            </div>
+
+            <button class="btn btn-secondary btn-sm" id="btn-open-upload">
+              📤 Upload Excel/CSV
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-export-csv">
+              📥 Export CSV
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-download-template">
+              📄 Template
+            </button>
+          </div>
+        </div>
+
+        <div id="tickets-container" class="ticket-list"></div>
+        <div id="flat-table-container" style="display: none; margin-top: 10px;"></div>
+
+      </section>
+
+      <!-- TAB 4: REALTIME MONITOR -->
+      <section id="section-realtime" class="tab-content" style="display: none;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div>
+              <h3 style="font-size: 16px; margin-bottom: 4px;">⚡ Realtime Telemetry & Data Stream</h3>
+              <p style="font-size: 12px; color: var(--text-muted);">
+                Modul telemetry realtime untuk CSR, IP Loopback, Latency, dan status BGP.
+              </p>
+            </div>
+            <div>
+              <button id="btn-toggle-live-telemetry" class="btn btn-primary btn-sm">▶️ Mulai Live Simulation</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="realtime-list-container"></div>
+      </section>
+
+      <!-- TAB 5: BACKUP & SNAPSHOT -->
+      <section id="section-backups" class="tab-content" style="display: none;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 16px;">
+          <h3 style="font-size: 16px; margin-bottom: 6px;">💾 Backup & Restore Mandiri</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+            Simpan seluruh database tiket, data master, dan mapping NE ke file backup JSON.
+          </p>
+
+          <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <button id="btn-download-json-backup" class="btn btn-primary">
+              📥 Download Backup (JSON)
+            </button>
+            <button id="btn-restore-json-file" class="btn btn-secondary">
+              📤 Restore dari File JSON
+            </button>
+            <input type="file" id="input-restore-json" accept=".json" style="display: none;">
+          </div>
+        </div>
+
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
+          <h3 style="font-size: 16px; margin-bottom: 6px;">🔄 Riwayat Auto-Snapshot (Safety Rollback)</h3>
+          <div id="snapshots-list-container"></div>
+        </div>
+      </section>
+
+      <!-- TAB 6: SLA & SETTINGS -->
+      <section id="section-settings" class="tab-content" style="display: none;">
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; max-width: 600px;">
+          <h3 style="font-size: 16px; margin-bottom: 6px;">⚙️ Aturan Periode SLA & Target Uniq</h3>
+          
+          <div class="form-group" style="margin-top: 14px;">
+            <label class="form-label">Target Jumlah Uniq (Personal Goals):</label>
+            <input type="number" id="set-target-uniq" class="form-control" value="198">
+            <small style="color: var(--text-dim); font-size: 11px;">Default: 198 Uniq Goals</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama Aplikasi / Dashboard:</label>
+            <input type="text" id="set-app-name" class="form-control">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
+            <div class="form-group">
+              <label class="form-label">XLWO: Masa Berlaku (Hari)</label>
+              <input type="number" id="set-xlwo-validity" class="form-control" value="7">
+            </div>
+            <div class="form-group">
+              <label class="form-label">XLWO: Reminder (H- Hari)</label>
+              <input type="number" id="set-xlwo-reminder" class="form-control" value="5">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
+            <div class="form-group">
+              <label class="form-label">RFC: Masa Berlaku (Hari)</label>
+              <input type="number" id="set-rfc-validity" class="form-control" value="27">
+            </div>
+            <div class="form-group">
+              <label class="form-label">RFC: Reminder (H- Hari)</label>
+              <input type="number" id="set-rfc-reminder" class="form-control" value="25">
+            </div>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <button id="btn-save-settings" class="btn btn-primary">Simpan Pengaturan</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
 
     <!-- ==========================================
-         TAB 4: SLA & REMINDER SETTINGS
+         3. RIGHT SIDE PANEL (Achievement & Schedule)
          ========================================== -->
-    <section id="section-settings" class="tab-content" style="display: none;">
-      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; max-width: 600px;">
-        <h3 style="font-size: 16px; margin-bottom: 6px;">⚙️ Aturan Periode & Reminder SLA</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-          Aturan default sesuai instruksi: XLWO berlaku 7 hari (reminder H-5), RFC berlaku 27 hari (reminder H-25). Kamu bisa ubah nilainya di sini kapan saja.
-        </p>
-
-        <div class="form-group">
-          <label class="form-label">Nama Aplikasi / Dashboard</label>
-          <input type="text" id="set-app-name" class="form-control">
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
-          <div class="form-group">
-            <label class="form-label">XLWO: Masa Berlaku (Hari)</label>
-            <input type="number" id="set-xlwo-validity" class="form-control" value="7">
-            <small style="color: var(--text-dim); font-size: 11px;">Default: 7 hari</small>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">XLWO: Mulai Reminder (H- Hari)</label>
-            <input type="number" id="set-xlwo-reminder" class="form-control" value="5">
-            <small style="color: var(--text-dim); font-size: 11px;">Default: H-5 sebelum expire</small>
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
-          <div class="form-group">
-            <label class="form-label">RFC: Masa Berlaku (Hari)</label>
-            <input type="number" id="set-rfc-validity" class="form-control" value="27">
-            <small style="color: var(--text-dim); font-size: 11px;">Default: 27 hari</small>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">RFC: Mulai Reminder (H- Hari)</label>
-            <input type="number" id="set-rfc-reminder" class="form-control" value="25">
-            <small style="color: var(--text-dim); font-size: 11px;">Default: H-25 sebelum expire</small>
-          </div>
-        </div>
-
-        <div style="margin-top: 20px;">
-          <button id="btn-save-settings" class="btn btn-primary">Simpan Pengaturan</button>
+    <aside class="fitness-right-panel">
+      
+      <!-- Personal Profile Summary Card -->
+      <div class="fitness-profile-card">
+        <div class="fitness-avatar">N</div>
+        <div>
+          <div style="font-size: 14px; font-weight: 800; color: var(--text-main);">NOC Engineer</div>
+          <div style="font-size: 11px; color: var(--text-muted);">Personal Goal Tracker</div>
         </div>
       </div>
-    </section>
 
-  </main>
+      <div class="profile-stats-pill-grid">
+        <div class="profile-pill-item">
+          <span class="pill-val" id="panel-target-val">198</span>
+          <span class="pill-lbl">Target</span>
+        </div>
+        <div class="profile-pill-item">
+          <span class="pill-val" id="panel-done-val" style="color: #10b981;">0</span>
+          <span class="pill-lbl">Selesai</span>
+        </div>
+        <div class="profile-pill-item">
+          <span class="pill-val" id="panel-percent-val" style="color: #f97316;">0%</span>
+          <span class="pill-lbl">Fulfill</span>
+        </div>
+      </div>
+
+      <!-- Your Goals Section -->
+      <div>
+        <div style="font-size: 14px; font-weight: 800; margin-bottom: 12px; color: var(--text-main); display: flex; justify-content: space-between;">
+          <span>Your Goals</span>
+          <span style="font-size: 11px; color: #f97316;" id="panel-goal-badge">Tier: Bronze</span>
+        </div>
+
+        <div class="goal-list-group">
+          
+          <!-- Goal 1: Uniq Fulfillment -->
+          <div class="goal-item-row">
+            <div class="goal-info-wrap">
+              <div class="goal-icon-box" style="background: rgba(13, 148, 136, 0.15); color: #0d9488;">🎯</div>
+              <div>
+                <div class="goal-title-txt">Uniq Goals</div>
+                <div class="goal-sub-txt" id="panel-goal-uniq-sub">0 / 198 Fulfill</div>
+              </div>
+            </div>
+            <div id="panel-ring-uniq">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Goal 2: RFC Cleared -->
+          <div class="goal-item-row">
+            <div class="goal-info-wrap">
+              <div class="goal-icon-box" style="background: rgba(249, 115, 22, 0.15); color: #f97316;">📑</div>
+              <div>
+                <div class="goal-title-txt">RFC Cleared</div>
+                <div class="goal-sub-txt" id="panel-goal-rfc-sub">0 Completed</div>
+              </div>
+            </div>
+            <div id="panel-ring-rfc">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Goal 3: XLWO Closed -->
+          <div class="goal-item-row">
+            <div class="goal-info-wrap">
+              <div class="goal-icon-box" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e;">📄</div>
+              <div>
+                <div class="goal-title-txt">XLWO Closed</div>
+                <div class="goal-sub-txt" id="panel-goal-xlwo-sub">0 Closed</div>
+              </div>
+            </div>
+            <div id="panel-ring-xlwo">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Monthly Progress Semi-Circle Card (Sesuai Image 2) -->
+      <div class="monthly-progress-card">
+        <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">Monthly Achievement</div>
+        <div id="panel-semi-circle-gauge">
+          <!-- Rendered by JS -->
+        </div>
+        <div style="font-size: 22px; font-weight: 800; color: #ea580c; margin-top: 4px;" id="panel-semi-circle-pct">0%</div>
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" id="panel-semi-circle-desc">
+          You have achieved 0% of your 198 Uniq goals!
+        </div>
+      </div>
+
+      <!-- Scheduled Activities -->
+      <div>
+        <div style="font-size: 13px; font-weight: 700; margin-bottom: 10px; color: var(--text-main); display: flex; justify-content: space-between;">
+          <span>Scheduled Plan</span>
+          <span style="font-size: 11px; color: var(--text-dim);">Upcoming</span>
+        </div>
+
+        <div id="panel-scheduled-list">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
 
   <!-- ==========================================
        MOBILE BOTTOM NAVIGATION BAR
        ========================================== -->
   <nav class="mobile-nav">
-    <button class="mobile-nav-item active" data-tab="tickets">
+    <button class="mobile-nav-item active" data-tab="overview">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Goals</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="generator">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+      <span>Email</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="tickets">
       <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 4v10h12V8H6zm2 2h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
       <span>Tiket</span>
     </button>
     <button class="mobile-nav-item" data-tab="realtime">
       <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
       <span>Realtime</span>
-    </button>
-    <button class="mobile-nav-item" data-tab="backups">
-      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
-      <span>Backup</span>
     </button>
     <button class="mobile-nav-item" data-tab="settings">
       <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
@@ -281,38 +736,37 @@
   </nav>
 
   <!-- ==========================================
-       MODAL 1: PASTE LANGSUNG DARI EXCEL
+       MODALS
        ========================================== -->
-  <div class="modal-overlay" id="modal-paste-excel">
+  <!-- Modal Paste Master -->
+  <div class="modal-overlay" id="modal-paste-master">
     <div class="modal-content">
       <div class="modal-header">
-        <div class="modal-title">📋 Paste Tabel dari Excel</div>
+        <div class="modal-title">📋 Paste Data Master dari Excel (33 Kolom)</div>
         <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
       </div>
       <div class="modal-body">
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-          Buka file Excel kamu, blok tabel (termasuk baris judul kolom), tekan <code>Ctrl+C</code>, lalu paste (<code>Ctrl+V</code>) di kotak bawah ini:
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Buka tabel Data Master di Excel, blok semua baris (termasuk judul kolom), tekan <code>Ctrl+C</code>, lalu paste di bawah:
         </p>
-
         <div class="form-group">
-          <textarea id="paste-textarea" class="form-control" placeholder="No	Vendor	SOW	Province	Kabupaten	Tower ID	Site ID	Site Name..."></textarea>
+          <textarea id="paste-master-textarea" class="form-control" style="min-height: 140px;" placeholder="no	Uniq	Exe Plan (Int)	Tower ID RAN (BTS/RAN)	Site Name	Area	City	Site ID..."></textarea>
         </div>
-
         <div class="form-group">
-          <label class="form-label">Metode Penggabungan Data:</label>
+          <label class="form-label">Metode Simpan:</label>
           <div class="radio-cards">
             <label class="radio-card selected">
-              <input type="radio" name="paste-import-mode" value="MERGE" checked>
+              <input type="radio" name="master-import-mode" value="REPLACE" checked>
               <div>
-                <strong>Smart Merge (Rekomendasi)</strong>
-                <div style="font-size: 11px; color: var(--text-dim);">Update baris tiket yang cocok, tambahkan baris baru tanpa menghapus catatan lama.</div>
+                <strong>Ganti Seluruh Data Master</strong>
+                <div style="font-size: 11px; color: var(--text-dim);">Timpa data master saat ini.</div>
               </div>
             </label>
             <label class="radio-card">
-              <input type="radio" name="paste-import-mode" value="REPLACE">
+              <input type="radio" name="master-import-mode" value="APPEND">
               <div>
-                <strong>Ganti Semua Data (Overwrite)</strong>
-                <div style="font-size: 11px; color: var(--text-dim);">Hapus semua data tiket lama dan ganti penuh dengan hasil paste.</div>
+                <strong>Tambahkan (Append)</strong>
+                <div style="font-size: 11px; color: var(--text-dim);">Gabungkan baris baru ke data lama.</div>
               </div>
             </label>
           </div>
@@ -320,14 +774,133 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary btn-close-modal">Batal</button>
-        <button class="btn btn-primary" id="btn-process-paste">Proses & Simpan Data</button>
+        <button class="btn btn-primary" id="btn-process-master-paste">Proses Data Master</button>
       </div>
     </div>
   </div>
 
-  <!-- ==========================================
-       MODAL 2: UPLOAD FILE EXCEL / CSV
-       ========================================== -->
+  <!-- Modal Paste NE -->
+  <div class="modal-overlay" id="modal-paste-ne">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">📎 Paste Database Lampiran NE (3 Kolom)</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Format: <strong>Site ID	NE Name	Technology Domain</strong> (Satu Site ID bisa punya banyak baris NE Name).
+        </p>
+        <div class="form-group">
+          <textarea id="paste-ne-textarea" class="form-control" style="min-height: 140px;" placeholder="Site ID	NE Name	Technology Domain
+2a	a_ccc_01	test
+2a	a_ccc_02	test
+3b	a_ccc_07	uji..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Metode Simpan:</label>
+          <div class="radio-cards">
+            <label class="radio-card selected">
+              <input type="radio" name="ne-import-mode" value="REPLACE" checked>
+              <div><strong>Ganti Database NE</strong></div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="ne-import-mode" value="APPEND">
+              <div><strong>Tambahkan (Append)</strong></div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-close-modal">Batal</button>
+        <button class="btn btn-primary" id="btn-process-ne-paste">Simpan Database NE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Push to Tracker -->
+  <div class="modal-overlay" id="modal-push-tracker">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title">🚀 Kirim Site Terpilih ke Ticket Tracker</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nomor XLWO:</label>
+          <input type="text" id="push-input-xlwo" class="form-control" placeholder="XLWO-20261110-00000035">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nomor RFC:</label>
+          <input type="text" id="push-input-rfc" class="form-control" placeholder="RFC-20261110-00000023">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Judul Activity / XLWO:</label>
+          <input type="text" id="push-input-title" class="form-control" placeholder="Support Delete Configuration EBGP Multihop...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-close-modal">Batal</button>
+        <button class="btn btn-primary" id="btn-confirm-push-tracker">Simpan ke Tracker Tiket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Firebase Sync -->
+  <div class="modal-overlay" id="modal-cloud-sync">
+    <div class="modal-content" style="max-width: 560px;">
+      <div class="modal-header">
+        <div class="modal-title">🔥 Hubungkan Google Firebase (Realtime Sync)</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Paste <strong>firebaseConfig</strong> dari Firebase Console di bawah agar Laptop dan HP tersinkron realtime:
+        </p>
+        <div class="form-group">
+          <textarea id="input-firebase-config" class="form-control" style="min-height: 120px; font-family: monospace; font-size: 11px;" placeholder='const firebaseConfig = { apiKey: "...", projectId: "..." };'></textarea>
+        </div>
+        <div id="cloud-test-result" style="margin-top: 12px; font-size: 12px; display: none;"></div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn btn-danger btn-sm" id="btn-disconnect-cloud">Putuskan Firebase</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-close-modal">Tutup</button>
+          <button class="btn btn-primary" id="btn-save-cloud-config">Hubungkan Firebase & Sinkron</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Edit Site Status -->
+  <div class="modal-overlay" id="modal-edit-status">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <div class="modal-title">✏️ Ubah Status Site</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px;" id="edit-site-name">-</div>
+        <div class="form-group">
+          <label class="form-label">Pilih Status Baru:</label>
+          <select id="edit-status-select" class="form-control">
+            <option value="done">DONE (Selesai)</option>
+            <option value="partial">PARTIAL (Perlu Lanjutan)</option>
+            <option value="pending">PENDING (Belum Dikerjakan)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Catatan Tambahan:</label>
+          <textarea id="edit-notes-input" class="form-control" style="min-height: 80px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-close-modal">Batal</button>
+        <button class="btn btn-primary" id="btn-save-status">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Upload Excel / CSV -->
   <div class="modal-overlay" id="modal-upload-file">
     <div class="modal-content">
       <div class="modal-header">
@@ -341,110 +914,22 @@
           <div style="font-size: 12px; color: var(--text-muted);">Mendukung file .xlsx, .xls, .csv</div>
           <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display: none;">
         </div>
-
         <div class="form-group" style="margin-top: 16px;">
           <label class="form-label">Metode Import:</label>
           <div class="radio-cards">
             <label class="radio-card selected">
               <input type="radio" name="file-import-mode" value="MERGE" checked>
-              <div>
-                <strong>Smart Merge</strong>
-                <div style="font-size: 11px; color: var(--text-dim);">Update site yang sama, pertahankan data lain.</div>
-              </div>
+              <div><strong>Smart Merge</strong></div>
             </label>
             <label class="radio-card">
               <input type="radio" name="file-import-mode" value="REPLACE">
-              <div>
-                <strong>Overwrite</strong>
-                <div style="font-size: 11px; color: var(--text-dim);">Ganti seluruh database tiket saat ini.</div>
-              </div>
+              <div><strong>Overwrite</strong></div>
             </label>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary btn-close-modal">Tutup</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       MODAL 3: UBAH STATUS SITE
-       ========================================== -->
-  <div class="modal-overlay" id="modal-edit-status">
-    <div class="modal-content" style="max-width: 450px;">
-      <div class="modal-header">
-        <div class="modal-title">✏️ Ubah Status Site</div>
-        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--text-main);" id="edit-site-name">-</div>
-
-        <div class="form-group">
-          <label class="form-label">Pilih Status Baru:</label>
-          <select id="edit-status-select" class="form-control" style="font-size: 14px; font-weight: 600;">
-            <option value="done">DONE (Selesai)</option>
-            <option value="partial">PARTIAL (Perlu Lanjutan)</option>
-            <option value="pending">PENDING (Belum Dikerjakan)</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Catatan Tambahan (Opsional):</label>
-          <textarea id="edit-notes-input" class="form-control" style="min-height: 80px;" placeholder="Contoh: Perlu MOP revisi dari tim core, dilanjut besok malam..."></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary btn-close-modal">Batal</button>
-        <button class="btn btn-primary" id="btn-save-status">Simpan Perubahan</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       MODAL 4: PENGATURAN REALTIME CLOUD SYNC (FIREBASE)
-       ========================================== -->
-  <div class="modal-overlay" id="modal-cloud-sync">
-    <div class="modal-content" style="max-width: 560px;">
-      <div class="modal-header">
-        <div class="modal-title">🔥 Hubungkan Google Firebase (Realtime Sync)</div>
-        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
-      </div>
-      <div class="modal-body">
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-          Cukup salin dan tempelkan <strong>firebaseConfig</strong> dari Firebase Console di bawah. Layar HP dan Laptop kamu akan langsung terhubung realtime via Google Firestore!
-        </p>
-
-        <div class="form-group">
-          <label class="form-label">Paste Firebase Config (JSON / Code Block):</label>
-          <textarea id="input-firebase-config" class="form-control" style="min-height: 140px; font-family: monospace; font-size: 11px;" placeholder='const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "proyek-anda.firebaseapp.com",
-  projectId: "proyek-anda",
-  storageBucket: "proyek-anda.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
-};'></textarea>
-        </div>
-
-        <div style="background: var(--bg-primary); border: 1px dashed var(--border-color); border-radius: var(--radius-sm); padding: 12px; font-size: 11px;">
-          <div style="font-weight: 700; color: #f97316; margin-bottom: 4px;">🛠️ Panduan Singkat 1 Menit Ambil Config di Firebase:</div>
-          <ol style="margin-left: 18px; line-height: 1.6; color: var(--text-muted);">
-            <li>Buka <a href="https://console.firebase.google.com" target="_blank" style="color: var(--primary);">console.firebase.google.com</a> dan buat project baru (gratis).</li>
-            <li>Klik <strong>Build ➔ Firestore Database</strong>, pilih <strong>Create Database</strong> (pilih "Start in test mode").</li>
-            <li>Buka <strong>Project Overview (ikon roda gigi ⚙️) ➔ Project settings</strong>.</li>
-            <li>Scroll ke bawah ke bagian <em>"Your apps"</em>, klik ikon Web <strong>`&lt;/&gt;`</strong>, beri nama web, lalu salin blok <strong>firebaseConfig</strong> ke kotak di atas!</li>
-          </ol>
-        </div>
-
-        <div id="cloud-test-result" style="margin-top: 12px; font-size: 12px; display: none;"></div>
-      </div>
-      <div class="modal-footer" style="justify-content: space-between;">
-        <button class="btn btn-danger btn-sm" id="btn-disconnect-cloud">Putuskan Firebase</button>
-        <div style="display: flex; gap: 8px;">
-          <button class="btn btn-secondary btn-close-modal">Tutup</button>
-          <button class="btn btn-primary" id="btn-save-cloud-config">Hubungkan Firebase & Sinkron</button>
-        </div>
       </div>
     </div>
   </div>
@@ -456,6 +941,8 @@
   <script src="js/storage.js"></script>
   <script src="js/firebaseSync.js"></script>
   <script src="js/ticketTracker.js"></script>
+  <script src="js/emailGenerator.js"></script>
+  <script src="js/achievementTracker.js"></script>
   <script src="js/realtimeData.js"></script>
   <script src="js/backupManager.js"></script>
   <script src="js/app.js"></script>

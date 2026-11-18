@@ -1,9 +1,8 @@
 # 📡 Ticket Tracker & NOC Realtime Dashboard
 
-Aplikasi web personal untuk tracking tiket **XLWO & RFC**, monitoring masa berlaku SLA & reminder dini, mengelola status site (`done`, `partial`, `pending`) dan kebutuhan lain terkait ticketing project (temporary XLWO only).
+Aplikasi web personal untuk tracking tiket **XLWO & RFC**, monitoring masa berlaku SLA & reminder dini, mengelola status site (`done`, `partial`, `pending`), dan terintegrasi **Google Firebase Realtime Sync** (Laptop & HP otomatis sinkron instan tanpa perlu SQL).
 
 Dirancang **mobile-first (PWA)** sehingga bisa langsung dibuka di browser HP (Chrome, Safari, Firefox) tanpa perlu install aplikasi Android APK.
-serta agar bisa dipakai untuk mempermudah pekerjaan orang pengganti cuti saya :D
 
 ---
 

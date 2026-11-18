@@ -927,3 +927,627 @@ textarea.form-control {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ==========================================================================
+   EMAIL & DATA MASTER GENERATOR STYLES
+   ========================================================================== */
+.generator-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 991px) {
+  .generator-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.generator-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.generator-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: var(--text-main);
+}
+
+.batch-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.ne-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.email-preview-box {
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  overflow-x: auto;
+  font-family: Calibri, Arial, sans-serif;
+  font-size: 11pt;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+[data-theme="dark"] .email-preview-box {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.email-preview-box table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0 16px 0;
+  font-size: 10pt;
+}
+
+.email-preview-box th {
+  background-color: #0284c7;
+  color: #ffffff;
+  padding: 8px 10px;
+  text-align: left;
+  border: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+.email-preview-box td {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e1;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .email-preview-box td {
+  border-color: #334155;
+}
+[data-theme="dark"] .email-preview-box th {
+  border-color: #334155;
+  background-color: #1e40af;
+}
+
+.checkbox-custom {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* ==========================================================================
+   FITNESS & PERSONAL GOAL DASHBOARD STYLES (MATCHING USER IMAGES)
+   ========================================================================== */
+.fitness-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+@media (max-width: 1200px) {
+  .fitness-layout {
+    grid-template-columns: 220px 1fr;
+  }
+  .fitness-right-panel {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .fitness-layout {
+    grid-template-columns: 1fr;
+  }
+  .fitness-sidebar {
+    display: none;
+  }
+}
+
+/* Fitness Left Sidebar */
+.fitness-sidebar {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.fitness-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-left: 8px;
+}
+
+.fitness-brand-logo {
+  width: 38px;
+  height: 38px;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.35);
+}
+
+.fitness-brand-text {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-main);
+}
+
+.fitness-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.fitness-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.fitness-nav-item:hover {
+  background: rgba(249, 115, 22, 0.08);
+  color: #f97316;
+}
+
+.fitness-nav-item.active {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+}
+
+.fitness-nav-icon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Fitness Main Center Column */
+.fitness-main {
+  padding: 20px 24px;
+  max-width: 100%;
+  overflow-y: auto;
+}
+
+/* Fitness Header */
+.fitness-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.fitness-greeting-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.fitness-greeting-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.fitness-search-box {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 30px;
+  padding: 8px 16px;
+  width: 320px;
+  max-width: 100%;
+  box-shadow: var(--shadow-sm);
+}
+
+.fitness-search-box input {
+  border: none;
+  background: transparent;
+  outline: none;
+  margin-left: 8px;
+  color: var(--text-main);
+  font-size: 13px;
+  width: 100%;
+}
+
+/* Hero Activity Banner */
+.fitness-hero-banner {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #ea580c 100%);
+  border-radius: 20px;
+  padding: 24px 28px;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.4);
+}
+
+.fitness-hero-banner::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+.hero-banner-content {
+  max-width: 580px;
+  z-index: 1;
+}
+
+.hero-banner-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.hero-banner-desc {
+  font-size: 13px;
+  opacity: 0.92;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.hero-banner-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  border-radius: 30px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 4 Vibrant Metric Cards */
+.fitness-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 1024px) {
+  .fitness-metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .fitness-metric-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fitness-stat-card {
+  border-radius: 16px;
+  padding: 18px 20px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 20px -4px rgba(0,0,0,0.15);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fitness-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px -4px rgba(0,0,0,0.25);
+}
+
+.stat-card-teal {
+  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+}
+
+.stat-card-orange {
+  background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+}
+
+.stat-card-coral {
+  background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
+}
+
+.stat-card-purple {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+}
+
+.stat-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.stat-card-value {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 6px 0;
+  line-height: 1.1;
+}
+
+.stat-card-sub {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.stat-card-progress-bar {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.stat-card-progress-fill {
+  height: 100%;
+  background: #ffffff;
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* Charts & Activity Row */
+.fitness-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .fitness-charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fitness-chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.chart-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* Activity Bar Chart Mock / SVG */
+.activity-bars-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  height: 160px;
+  padding-top: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.bar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 32px;
+}
+
+.bar-pill {
+  width: 14px;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.15);
+  transition: height 0.5s ease;
+  position: relative;
+}
+
+.bar-pill.highlight {
+  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.4);
+}
+
+.bar-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* Right Side Panel (Achievement Profile & Goals) */
+.fitness-right-panel {
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.fitness-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+}
+
+.fitness-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f97316, #ec4899);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.profile-stats-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  text-align: center;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 8px;
+  margin-top: 4px;
+}
+
+.profile-pill-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.pill-val {
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.pill-lbl {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Your Goals List */
+.goal-list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goal-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+
+.goal-item-row:hover {
+  transform: translateX(2px);
+}
+
+.goal-info-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goal-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.goal-title-txt {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.goal-sub-txt {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Semi-Circle Progress Card */
+.monthly-progress-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+}
+
+/* Scheduled List */
+.scheduled-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+  background: var(--bg-card);
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+

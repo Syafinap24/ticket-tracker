@@ -4,7 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // --- STATE ---
-  let currentTab = 'tickets'; // 'tickets', 'realtime', 'backups', 'settings'
+  let currentTab = 'overview'; // 'overview', 'generator', 'tickets', 'realtime', 'backups', 'settings'
   let currentViewMode = 'grouped'; // 'grouped' or 'flat'
   let currentFilter = {
     status: '',
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function switchTab(tabId) {
     currentTab = tabId;
     document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('.nav-tab, .mobile-nav-item').forEach(el => {
+    document.querySelectorAll('.nav-tab, .mobile-nav-item, .fitness-nav-item').forEach(el => {
       if (el.dataset.tab === tabId) el.classList.add('active');
       else el.classList.remove('active');
     });
@@ -51,7 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const targetSection = document.getElementById(`section-${tabId}`);
     if (targetSection) targetSection.style.display = 'block';
 
-    if (tabId === 'tickets') {
+    if (tabId === 'overview') {
+      renderOverviewAndGoals();
+    } else if (tabId === 'generator') {
+      renderGeneratorUI();
+    } else if (tabId === 'tickets') {
       renderDashboard();
     } else if (tabId === 'realtime') {
       renderRealtimeSection();
@@ -676,17 +680,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const setRfcVal = document.getElementById('set-rfc-validity');
     const setRfcRem = document.getElementById('set-rfc-reminder');
     const setAppName = document.getElementById('set-app-name');
+    const setTargetUniq = document.getElementById('set-target-uniq');
 
     if (setXlwoVal) setXlwoVal.value = settings.xlwoValidityDays;
     if (setXlwoRem) setXlwoRem.value = settings.xlwoReminderDays;
     if (setRfcVal) setRfcVal.value = settings.rfcValidityDays;
     if (setRfcRem) setRfcRem.value = settings.rfcReminderDays;
     if (setAppName) setAppName.value = settings.appName;
+    if (setTargetUniq && window.achievementTracker) setTargetUniq.value = window.achievementTracker.targetUniq;
   }
 
   const btnSaveSettings = document.getElementById('btn-save-settings');
   if (btnSaveSettings) {
     btnSaveSettings.addEventListener('click', () => {
+      const setTargetUniq = document.getElementById('set-target-uniq');
+      if (setTargetUniq && window.achievementTracker) {
+        window.achievementTracker.setTargetUniq(parseInt(setTargetUniq.value, 10) || 198);
+      }
+
       const updated = {
         ...window.appStorage.getSettings(),
         xlwoValidityDays: parseInt(document.getElementById('set-xlwo-validity').value, 10) || 7,
@@ -696,7 +707,8 @@ document.addEventListener('DOMContentLoaded', () => {
         appName: document.getElementById('set-app-name').value || 'Personal Ticket Tracker'
       };
       window.appStorage.saveSettings(updated);
-      showToast('Pengaturan SLA & Reminder berhasil disimpan!', 'success');
+      showToast('Pengaturan SLA & Target Uniq berhasil disimpan!', 'success');
+      renderOverviewAndGoals();
       renderDashboard();
     });
   }
@@ -840,6 +852,564 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // =========================================================================
+  // --- OVERVIEW & PERSONAL GOALS (198 UNIQ ACHIEVEMENT) CONTROLLER ---
+  // =========================================================================
+  const globalFitnessSearch = document.getElementById('global-fitness-search');
+  const btnQuickToGenerator = document.getElementById('btn-quick-to-generator');
+
+  if (globalFitnessSearch) {
+    globalFitnessSearch.addEventListener('input', () => {
+      renderOverviewAndGoals();
+    });
+  }
+
+  if (btnQuickToGenerator) {
+    btnQuickToGenerator.addEventListener('click', () => {
+      switchTab('generator');
+    });
+  }
+
+  function renderOverviewAndGoals() {
+    if (!window.achievementTracker) return;
+
+    const stats = window.achievementTracker.getAchievementStats();
+    const kpi = window.ticketTracker ? window.ticketTracker.getKpiSummary() : { reminderCount: 0, criticalCount: 0 };
+
+    // 1. Hero Milestone Badge
+    const heroBadge = document.getElementById('hero-milestone-badge');
+    if (heroBadge) {
+      heroBadge.innerHTML = `🏆 Milestone: <strong>${stats.badgeTier}</strong> • ${stats.doneCount} / ${stats.target} Uniq (${stats.progressPercent}%)`;
+    }
+
+    // 2. Card 1: Teal (Uniq Goals)
+    const metricUniqVal = document.getElementById('metric-uniq-value');
+    const metricUniqPct = document.getElementById('metric-uniq-pct');
+    const metricUniqSub = document.getElementById('metric-uniq-sub');
+    const metricUniqBar = document.getElementById('metric-uniq-bar');
+    if (metricUniqVal) metricUniqVal.textContent = `${stats.doneCount} / ${stats.target}`;
+    if (metricUniqPct) metricUniqPct.textContent = `${stats.progressPercent}%`;
+    if (metricUniqSub) metricUniqSub.textContent = `${stats.progressPercent}% of your ${stats.target} goals`;
+    if (metricUniqBar) metricUniqBar.style.width = `${stats.progressPercent}%`;
+
+    // 3. Card 2: Orange (Done / Selesai)
+    const metricDoneVal = document.getElementById('metric-done-value');
+    const metricDoneRing = document.getElementById('metric-done-ring');
+    if (metricDoneVal) metricDoneVal.textContent = stats.doneCount;
+    if (metricDoneRing) {
+      metricDoneRing.innerHTML = AchievementTracker.createCircularRingSvg(stats.progressPercent, 48, 4, '#ffffff', 'rgba(255,255,255,0.25)');
+    }
+
+    // 4. Card 3: Coral / Pink (Partial)
+    const metricPartialVal = document.getElementById('metric-partial-value');
+    if (metricPartialVal) metricPartialVal.textContent = stats.partialCount;
+
+    // 5. Card 4: Purple (Urgent SLA)
+    const metricUrgentVal = document.getElementById('metric-urgent-value');
+    if (metricUrgentVal) metricUrgentVal.textContent = kpi.reminderCount + kpi.criticalCount;
+
+    // 6. Right Side Panel
+    const panelTargetVal = document.getElementById('panel-target-val');
+    const panelDoneVal = document.getElementById('panel-done-val');
+    const panelPercentVal = document.getElementById('panel-percent-val');
+    const panelGoalBadge = document.getElementById('panel-goal-badge');
+    const panelGoalUniqSub = document.getElementById('panel-goal-uniq-sub');
+    const panelRingUniq = document.getElementById('panel-ring-uniq');
+    const panelRingRfc = document.getElementById('panel-ring-rfc');
+    const panelRingXlwo = document.getElementById('panel-ring-xlwo');
+
+    if (panelTargetVal) panelTargetVal.textContent = stats.target;
+    if (panelDoneVal) panelDoneVal.textContent = stats.doneCount;
+    if (panelPercentVal) panelPercentVal.textContent = `${stats.progressPercent}%`;
+    if (panelGoalBadge) panelGoalBadge.textContent = stats.badgeTier;
+    if (panelGoalUniqSub) panelGoalUniqSub.textContent = `${stats.doneCount} / ${stats.target} Fulfill`;
+
+    if (panelRingUniq) {
+      panelRingUniq.innerHTML = AchievementTracker.createCircularRingSvg(stats.progressPercent, 36, 3.5, '#0d9488', 'rgba(0,0,0,0.06)');
+    }
+    if (panelRingRfc) {
+      panelRingRfc.innerHTML = AchievementTracker.createCircularRingSvg(Math.min(100, stats.progressPercent + 10), 36, 3.5, '#f97316', 'rgba(0,0,0,0.06)');
+    }
+    if (panelRingXlwo) {
+      panelRingXlwo.innerHTML = AchievementTracker.createCircularRingSvg(Math.min(100, stats.progressPercent + 5), 36, 3.5, '#f43f5e', 'rgba(0,0,0,0.06)');
+    }
+
+    // 7. Semi-Circle Gauge Card (Monthly Progress)
+    const panelSemiCircleGauge = document.getElementById('panel-semi-circle-gauge');
+    const panelSemiCirclePct = document.getElementById('panel-semi-circle-pct');
+    const panelSemiCircleDesc = document.getElementById('panel-semi-circle-desc');
+
+    if (panelSemiCircleGauge) {
+      panelSemiCircleGauge.innerHTML = AchievementTracker.createSemiCircleGaugeSvg(stats.progressPercent, 160, 90);
+    }
+    if (panelSemiCirclePct) panelSemiCirclePct.textContent = `${stats.progressPercent}%`;
+    if (panelSemiCircleDesc) {
+      panelSemiCircleDesc.textContent = `You have achieved ${stats.progressPercent}% of your ${stats.target} Uniq goals this month!`;
+    }
+
+    // 8. Donut Status Breakdown
+    const donutValDone = document.getElementById('donut-val-done');
+    const donutValPartial = document.getElementById('donut-val-partial');
+    const donutValPending = document.getElementById('donut-val-pending');
+    const estimatedDaysLbl = document.getElementById('estimated-days-lbl');
+    const breakdownDonutSvg = document.getElementById('breakdown-donut-svg');
+
+    if (donutValDone) donutValDone.textContent = stats.doneCount;
+    if (donutValPartial) donutValPartial.textContent = stats.partialCount;
+    if (donutValPending) donutValPending.textContent = stats.pendingCount;
+    if (estimatedDaysLbl) estimatedDaysLbl.textContent = `${stats.daysEstimated} Hari Kerja`;
+
+    if (breakdownDonutSvg) {
+      breakdownDonutSvg.innerHTML = AchievementTracker.createCircularRingSvg(stats.progressPercent, 110, 10, '#10b981', 'rgba(0,0,0,0.08)');
+    }
+
+    // 9. Scheduled List in Right Panel
+    const panelScheduledList = document.getElementById('panel-scheduled-list');
+    if (panelScheduledList) {
+      const schedule = window.achievementTracker.getUpcomingSchedule(4);
+      if (schedule.length === 0) {
+        panelScheduledList.innerHTML = `<div style="font-size:11px; color:var(--text-muted); text-align:center; padding:10px;">Belum ada jadwal Exe Plan.</div>`;
+      } else {
+        panelScheduledList.innerHTML = schedule.map(item => `
+          <div class="scheduled-list-item">
+            <div>
+              <div style="font-weight: 700; color: var(--text-main); font-size: 12px;">${item.siteName}</div>
+              <div style="font-size: 11px; color: var(--text-dim);">${item.city} • ${item.siteId}</div>
+            </div>
+            <span style="padding: 2px 8px; border-radius: 4px; background: rgba(249, 115, 22, 0.15); color: #ea580c; font-weight: bold; font-size: 11px;">
+              ${item.exePlan}
+            </span>
+          </div>
+        `).join('');
+      }
+    }
+
+    // 10. Table: Uniq Goals & Activity Progress
+    const overviewUniqTbody = document.getElementById('overview-uniq-tbody');
+    if (overviewUniqTbody) {
+      const q = (document.getElementById('global-fitness-search')?.value || '').toLowerCase().trim();
+      let list = stats.uniqList;
+      if (q) {
+        list = list.filter(u => 
+          u.uniq.toLowerCase().includes(q) ||
+          u.siteName.toLowerCase().includes(q) ||
+          u.city.toLowerCase().includes(q)
+        );
+      }
+
+      if (list.length === 0) {
+        overviewUniqTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-muted);">Belum ada data Uniq. Paste Data Master pada tab Generator Email.</td></tr>`;
+      } else {
+        overviewUniqTbody.innerHTML = list.map((u, idx) => {
+          const isDone = (u.status || '').toLowerCase() === 'done';
+          const isPartial = (u.status || '').toLowerCase() === 'partial';
+          const stClass = isDone ? 'status-done' : (isPartial ? 'status-partial' : 'status-pending');
+          const stText = isDone ? 'DONE' : (isPartial ? 'PARTIAL' : 'PENDING');
+
+          return `
+            <tr>
+              <td>${idx + 1}</td>
+              <td><strong>${u.uniq}</strong></td>
+              <td>${u.siteName}</td>
+              <td>${u.city}</td>
+              <td>${u.exePlan}</td>
+              <td><span class="status-badge ${stClass}">${stText}</span></td>
+              <td>
+                <button class="btn btn-secondary btn-sm btn-nav-to-generator" data-site-name="${u.siteName}">
+                  Detail
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        overviewUniqTbody.querySelectorAll('.btn-nav-to-generator').forEach(btn => {
+          btn.addEventListener('click', () => {
+            switchTab('generator');
+          });
+        });
+      }
+    }
+  }
+
+  // =========================================================================
+  // --- GENERATOR EMAIL & DATA MASTER CONTROLLER ---
+  // =========================================================================
+  const genMasterTbody = document.getElementById('gen-master-tbody');
+  const emailPreviewContainer = document.getElementById('email-preview-container');
+  const genStatsBadge = document.getElementById('gen-stats-badge');
+  const neDatabaseCount = document.getElementById('ne-database-count');
+
+  const genInputVendor = document.getElementById('gen-input-vendor');
+  const genInputSow = document.getElementById('gen-input-sow');
+  const genInputMop = document.getElementById('gen-input-mop');
+  const genInputDate = document.getElementById('gen-input-date');
+  const genSearchMaster = document.getElementById('gen-search-master');
+
+  const btnSelectAllSites = document.getElementById('btn-select-all-sites');
+  const btnDeselectAllSites = document.getElementById('btn-deselect-all-sites');
+  const btnCopyEmailHtml = document.getElementById('btn-copy-email-html');
+  const btnCopyPreviewBtn = document.getElementById('btn-copy-preview-btn');
+  const btnPushToTracker = document.getElementById('btn-push-to-tracker');
+  const btnExportEmailCsv = document.getElementById('btn-export-email-csv');
+  const btnLoadDemoGenerator = document.getElementById('btn-load-demo-generator');
+
+  // Modals for Generator
+  const modalPasteMaster = document.getElementById('modal-paste-master');
+  const btnOpenPasteMaster = document.getElementById('btn-open-paste-master');
+  const pasteMasterTextarea = document.getElementById('paste-master-textarea');
+  const btnProcessMasterPaste = document.getElementById('btn-process-master-paste');
+
+  const modalPasteNe = document.getElementById('modal-paste-ne');
+  const btnOpenPasteNe = document.getElementById('btn-open-paste-ne');
+  const pasteNeTextarea = document.getElementById('paste-ne-textarea');
+  const btnProcessNePaste = document.getElementById('btn-process-ne-paste');
+
+  const modalPushTracker = document.getElementById('modal-push-tracker');
+  const pushInputXlwo = document.getElementById('push-input-xlwo');
+  const pushInputRfc = document.getElementById('push-input-rfc');
+  const pushInputTitle = document.getElementById('push-input-title');
+  const btnConfirmPushTracker = document.getElementById('btn-confirm-push-tracker');
+
+  function renderGeneratorUI() {
+    if (!window.emailGenerator) return;
+
+    // 1. Sync Batch Config to inputs
+    const cfg = window.emailGenerator.batchConfig;
+    if (genInputVendor && !genInputVendor.dataset.userEdited) genInputVendor.value = cfg.vendor || '';
+    if (genInputSow && !genInputSow.dataset.userEdited) genInputSow.value = cfg.sow || '';
+    if (genInputMop && !genInputMop.dataset.userEdited) genInputMop.value = cfg.mop || '';
+    if (genInputDate && !genInputDate.dataset.userEdited) {
+      genInputDate.value = cfg.dateSubmit || new Date().toISOString().slice(0, 10);
+    }
+
+    // 2. Render Master Selection Table
+    const masterList = window.emailGenerator.masterList;
+    const searchFilter = (genSearchMaster ? genSearchMaster.value : '').toLowerCase().trim();
+
+    let filteredMaster = masterList;
+    if (searchFilter) {
+      filteredMaster = filteredMaster.filter(m => 
+        (m.siteId || '').toLowerCase().includes(searchFilter) ||
+        (m.siteName || '').toLowerCase().includes(searchFilter) ||
+        (m.city || '').toLowerCase().includes(searchFilter) ||
+        (m.area || '').toLowerCase().includes(searchFilter) ||
+        (m.hostname || '').toLowerCase().includes(searchFilter) ||
+        (m.routerIp || '').toLowerCase().includes(searchFilter) ||
+        (m.towerId || '').toLowerCase().includes(searchFilter)
+      );
+    }
+
+    if (genMasterTbody) {
+      if (filteredMaster.length === 0) {
+        genMasterTbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding: 20px; color: var(--text-muted);">Tidak ada data master ditemukan. Klik "Paste Data Master" di atas.</td></tr>`;
+      } else {
+        genMasterTbody.innerHTML = filteredMaster.map(site => {
+          const neCount = window.emailGenerator.getNeCountForSite(site.siteId);
+          const neBadge = neCount > 0 
+            ? `<span class="ne-tag">📎 ${neCount} NE</span>` 
+            : `<span style="font-size:11px; color: var(--text-dim);">(0 NE)</span>`;
+
+          return `
+            <tr style="background: ${site.selected ? 'rgba(59, 130, 246, 0.08)' : 'transparent'};">
+              <td style="text-align: center;">
+                <input type="checkbox" class="checkbox-custom site-checkbox" data-master-id="${site.id}" ${site.selected ? 'checked' : ''}>
+              </td>
+              <td><strong>${site.siteId || '-'}</strong></td>
+              <td>${site.siteName || '-'}</td>
+              <td>${neBadge}</td>
+              <td>${site.city || '-'}, ${site.area || '-'}</td>
+              <td><code>${site.towerId || site.hutId || '-'}</code></td>
+              <td>${site.hostname || site.hutRouter || '-'}</td>
+              <td><code>${site.routerIp || '-'}</code></td>
+              <td>${site.routepath || 'Direct'}</td>
+              <td>${site.exePlan || '-'}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Attach checkbox listeners
+      genMasterTbody.querySelectorAll('.site-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          const id = e.target.dataset.masterId;
+          const target = window.emailGenerator.masterList.find(m => m.id === id);
+          if (target) {
+            target.selected = e.target.checked;
+            window.emailGenerator.saveMaster(window.emailGenerator.masterList);
+            updateGeneratorStatsAndPreview();
+          }
+        });
+      });
+    }
+
+    updateGeneratorStatsAndPreview();
+  }
+
+  function updateGeneratorStatsAndPreview() {
+    if (!window.emailGenerator) return;
+
+    const emailItems = window.emailGenerator.generateEmailItems();
+    const neItems = window.emailGenerator.getAttachedNeItems();
+
+    // Update Stats Badge
+    if (genStatsBadge) {
+      genStatsBadge.textContent = `${emailItems.length} Site Dipilih • ${neItems.length} NE Terkait`;
+    }
+
+    if (neDatabaseCount) {
+      const distinctSitesInNe = new Set(window.emailGenerator.neList.map(n => n.siteId)).size;
+      neDatabaseCount.textContent = `${window.emailGenerator.neList.length} Record (${distinctSitesInNe} Site)`;
+    }
+
+    // Update Live Preview Container
+    if (emailPreviewContainer) {
+      emailPreviewContainer.innerHTML = window.emailGenerator.generateEmailHtml();
+    }
+  }
+
+  // Batch Config Input Change Handlers
+  function handleBatchConfigChange() {
+    const newCfg = {
+      vendor: genInputVendor ? genInputVendor.value.trim() : 'Huawei',
+      sow: genInputSow ? genInputSow.value.trim() : '',
+      mop: genInputMop ? genInputMop.value.trim() : '',
+      dateSubmit: genInputDate ? genInputDate.value : ''
+    };
+    window.emailGenerator.saveBatchConfig(newCfg);
+    updateGeneratorStatsAndPreview();
+  }
+
+  if (genInputVendor) {
+    genInputVendor.addEventListener('input', () => {
+      genInputVendor.dataset.userEdited = 'true';
+      handleBatchConfigChange();
+    });
+  }
+  if (genInputSow) {
+    genInputSow.addEventListener('input', () => {
+      genInputSow.dataset.userEdited = 'true';
+      handleBatchConfigChange();
+    });
+  }
+  if (genInputMop) {
+    genInputMop.addEventListener('input', () => {
+      genInputMop.dataset.userEdited = 'true';
+      handleBatchConfigChange();
+    });
+  }
+  if (genInputDate) {
+    genInputDate.addEventListener('change', () => {
+      genInputDate.dataset.userEdited = 'true';
+      handleBatchConfigChange();
+    });
+  }
+
+  if (genSearchMaster) {
+    genSearchMaster.addEventListener('input', () => {
+      renderGeneratorUI();
+    });
+  }
+
+  // Select / Deselect All
+  if (btnSelectAllSites) {
+    btnSelectAllSites.addEventListener('click', () => {
+      window.emailGenerator.masterList.forEach(m => m.selected = true);
+      window.emailGenerator.saveMaster(window.emailGenerator.masterList);
+      renderGeneratorUI();
+    });
+  }
+
+  if (btnDeselectAllSites) {
+    btnDeselectAllSites.addEventListener('click', () => {
+      window.emailGenerator.masterList.forEach(m => m.selected = false);
+      window.emailGenerator.saveMaster(window.emailGenerator.masterList);
+      renderGeneratorUI();
+    });
+  }
+
+  // Copy Email HTML (Formatted table for Outlook/Gmail)
+  async function copyEmailHtmlToClipboard() {
+    const html = window.emailGenerator.generateEmailHtml();
+    if (!html || window.emailGenerator.generateEmailItems().length === 0) {
+      alert('Pilih minimal 1 site dari Data Master terlebih dahulu.');
+      return;
+    }
+
+    try {
+      if (navigator.clipboard && window.ClipboardItem) {
+        const blobHtml = new Blob([html], { type: 'text/html' });
+        const plainText = html.replace(/<[^>]*>?/gm, ' ');
+        const blobText = new Blob([plainText], { type: 'text/plain' });
+
+        const item = new ClipboardItem({
+          'text/html': blobHtml,
+          'text/plain': blobText
+        });
+        await navigator.clipboard.write([item]);
+        showToast('📋 Tabel Email & Lampiran NE berhasil disalin! Siap dipaste (Ctrl+V) di Outlook / Gmail.', 'success');
+      } else {
+        // Fallback copy
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        document.body.appendChild(tempDiv);
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        document.execCommand('copy');
+        document.body.removeChild(tempDiv);
+        showToast('📋 Format email berhasil disalin ke clipboard!', 'success');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Gagal menyalin otomatis: ' + err.message);
+    }
+  }
+
+  if (btnCopyEmailHtml) btnCopyEmailHtml.addEventListener('click', copyEmailHtmlToClipboard);
+  if (btnCopyPreviewBtn) btnCopyPreviewBtn.addEventListener('click', copyEmailHtmlToClipboard);
+
+  // Export Email Items to CSV
+  if (btnExportEmailCsv) {
+    btnExportEmailCsv.addEventListener('click', () => {
+      const items = window.emailGenerator.generateEmailItems();
+      if (items.length === 0) {
+        alert('Pilih minimal 1 site pada Data Master.');
+        return;
+      }
+      window.backupManager.exportToCsv(items);
+    });
+  }
+
+  // Load Demo Data (Site 2a & 3b with exact 9 NEs from user)
+  if (btnLoadDemoGenerator) {
+    btnLoadDemoGenerator.addEventListener('click', () => {
+      if (confirm('Muat contoh data master (Site 2a & 3b) beserta mapping 9 NE domain?')) {
+        window.emailGenerator.saveMaster(INITIAL_DEMO_MASTER);
+        window.emailGenerator.saveNe(INITIAL_DEMO_NE);
+        renderGeneratorUI();
+        showToast('Contoh Data Master & Lampiran NE berhasil dimuat!', 'success');
+      }
+    });
+  }
+
+  // Modal: Paste Data Master
+  if (btnOpenPasteMaster && modalPasteMaster) {
+    btnOpenPasteMaster.addEventListener('click', () => {
+      if (pasteMasterTextarea) pasteMasterTextarea.value = '';
+      modalPasteMaster.classList.add('active');
+    });
+  }
+
+  if (btnProcessMasterPaste) {
+    btnProcessMasterPaste.addEventListener('click', () => {
+      const text = pasteMasterTextarea.value;
+      if (!text || !text.trim()) {
+        alert('Silakan paste data tabel Data Master terlebih dahulu.');
+        return;
+      }
+
+      try {
+        const parsed = window.emailGenerator.parseMasterClipboard(text);
+        const mode = document.querySelector('input[name="master-import-mode"]:checked').value;
+
+        let newList = parsed;
+        if (mode === 'APPEND') {
+          newList = [...window.emailGenerator.masterList, ...parsed];
+        }
+
+        window.emailGenerator.saveMaster(newList);
+        showToast(`Berhasil memproses ${parsed.length} baris Data Master!`, 'success');
+        modalPasteMaster.classList.remove('active');
+        renderGeneratorUI();
+      } catch (err) {
+        alert('Gagal memproses Data Master: ' + err.message);
+      }
+    });
+  }
+
+  // Modal: Paste Data Lampiran NE
+  if (btnOpenPasteNe && modalPasteNe) {
+    btnOpenPasteNe.addEventListener('click', () => {
+      if (pasteNeTextarea) pasteNeTextarea.value = '';
+      modalPasteNe.classList.add('active');
+    });
+  }
+
+  if (btnProcessNePaste) {
+    btnProcessNePaste.addEventListener('click', () => {
+      const text = pasteNeTextarea.value;
+      if (!text || !text.trim()) {
+        alert('Silakan paste data tabel Lampiran NE (Site ID, NE Name, Technology Domain).');
+        return;
+      }
+
+      try {
+        const parsed = window.emailGenerator.parseNeClipboard(text);
+        const mode = document.querySelector('input[name="ne-import-mode"]:checked').value;
+
+        let newList = parsed;
+        if (mode === 'APPEND') {
+          newList = [...window.emailGenerator.neList, ...parsed];
+        }
+
+        window.emailGenerator.saveNe(newList);
+        showToast(`Berhasil menyimpan ${parsed.length} data mapping NE!`, 'success');
+        modalPasteNe.classList.remove('active');
+        renderGeneratorUI();
+      } catch (err) {
+        alert('Gagal memproses Data Lampiran NE: ' + err.message);
+      }
+    });
+  }
+
+  // Modal: Push to Ticket Tracker
+  if (btnPushToTracker && modalPushTracker) {
+    btnPushToTracker.addEventListener('click', () => {
+      const selected = window.emailGenerator.masterList.filter(m => m.selected);
+      if (selected.length === 0) {
+        alert('Pilih minimal 1 site pada Data Master terlebih dahulu.');
+        return;
+      }
+
+      // Auto-suggest nomor dari master jika ada
+      const firstWithXlwo = selected.find(s => s.xlwoTrm || s.xlwoRan);
+      const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      if (pushInputXlwo) {
+        pushInputXlwo.value = firstWithXlwo ? (firstWithXlwo.xlwoTrm || firstWithXlwo.xlwoRan) : `XLWO-${todayStr}-00000035`;
+      }
+      if (pushInputRfc) {
+        pushInputRfc.value = firstWithXlwo ? (firstWithXlwo.rfcTrm || firstWithXlwo.rfcRan) : `RFC-${todayStr}-00000023`;
+      }
+      if (pushInputTitle) {
+        pushInputTitle.value = window.emailGenerator.batchConfig.sow || 'Support Delete Configuration EBGP Multihop';
+      }
+
+      modalPushTracker.classList.add('active');
+    });
+  }
+
+  if (btnConfirmPushTracker) {
+    btnConfirmPushTracker.addEventListener('click', () => {
+      const xlwo = pushInputXlwo.value.trim();
+      const rfc = pushInputRfc.value.trim();
+      const title = pushInputTitle.value.trim();
+
+      const count = window.emailGenerator.exportToTicketTracker(xlwo, rfc, title);
+      showToast(`🚀 ${count} site berhasil dikirim ke Ticket Tracker!`, 'success');
+      modalPushTracker.classList.remove('active');
+
+      // Pindahkan langsung ke tab tiket tracker agar user langsung melihat kartu SLA
+      switchTab('tickets');
+    });
+  }
+
   // --- INITIAL RENDER ---
+  renderOverviewAndGoals();
+  renderGeneratorUI();
   renderDashboard();
 });
