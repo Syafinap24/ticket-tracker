@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Personal Ticket Tracker & Realtime NOC</title>
+  
+  <!-- Mobile & PWA Optimization -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
+
+  <!-- App Stylesheet -->
+  <link rel="stylesheet" href="css/app.css">
+  
+  <!-- Optional SheetJS CDN for direct .xlsx parsing in browser -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
+  <!-- Google Firebase App & Firestore SDKs (Official Compat CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">📡</div>
+      <div>
+        <div class="brand-title">Ticket & NOC Tracker</div>
+        <div class="brand-subtitle">Personal Dashboard • Mobile & Realtime Ready</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="cloud-sync-status" class="btn btn-secondary btn-sm" style="cursor: pointer; border-radius: 20px; font-size: 11px; padding: 5px 12px;" title="Klik untuk Pengaturan Realtime Cloud Sync">
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#64748b; margin-right:5px;"></span> Mode Lokal
+      </div>
+      <button class="btn btn-secondary btn-sm" id="theme-toggle-btn">☀️ Light</button>
+      <button class="btn btn-primary btn-sm" id="btn-open-paste">📋 Paste Excel</button>
+    </div>
+  </header>
+
+  <!-- Desktop Top Navigation Tabs -->
+  <nav class="nav-tabs">
+    <button class="nav-tab active" data-tab="tickets">
+      <span>🎫</span> Dashboard Tiket
+    </button>
+    <button class="nav-tab" data-tab="realtime">
+      <span>⚡</span> Realtime Monitor
+    </button>
+    <button class="nav-tab" data-tab="backups">
+      <span>💾</span> Backup & Snapshot
+    </button>
+    <button class="nav-tab" data-tab="settings">
+      <span>⚙️</span> SLA & Reminder
+    </button>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- ==========================================
+         TAB 1: DASHBOARD TIKET RFC & XLWO
+         ========================================== -->
+    <section id="section-tickets" class="tab-content">
+      
+      <!-- KPI Summary Grid -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-total">
+          <div class="kpi-label">Total Tiket</div>
+          <div class="kpi-value" id="kpi-total">0</div>
+          <div class="kpi-desc">Grup Tiket XLWO/RFC</div>
+        </div>
+        <div class="kpi-card kpi-reminder">
+          <div class="kpi-label">Perlu Tindakan</div>
+          <div class="kpi-value" id="kpi-reminder" style="color: var(--warning);">0</div>
+          <div class="kpi-desc">Reminder H-5 & H-25</div>
+        </div>
+        <div class="kpi-card kpi-partial">
+          <div class="kpi-label">Ada Partial</div>
+          <div class="kpi-value" id="kpi-partial" style="color: #a78bfa;">0</div>
+          <div class="kpi-desc">Butuh Dilanjutkan</div>
+        </div>
+        <div class="kpi-card kpi-done">
+          <div class="kpi-label">Done / Selesai</div>
+          <div class="kpi-value" id="kpi-done" style="color: var(--success);">0</div>
+          <div class="kpi-desc">Semua Site Done</div>
+        </div>
+        <div class="kpi-card kpi-expired">
+          <div class="kpi-label">Expired</div>
+          <div class="kpi-value" id="kpi-expired" style="color: var(--danger);">0</div>
+          <div class="kpi-desc">Melebihi SLA Periode</div>
+        </div>
+      </div>
+
+      <!-- Action & Filter Bar -->
+      <div class="action-bar">
+        <div class="search-filter-group">
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" class="search-input" placeholder="Cari Site, Tower, IP, Hostname, Tiket...">
+          </div>
+
+          <select id="status-filter" class="filter-select">
+            <option value="">Semua Status</option>
+            <option value="REMINDER">⚠️ Perlu Tindakan (Reminder H-5 / H-25)</option>
+            <option value="PARTIAL">🟣 Ada Partial (Lanjutan)</option>
+            <option value="NOT_DONE">⏳ Belum Selesai</option>
+            <option value="DONE">🟢 Selesai (Done)</option>
+            <option value="EXPIRED">❌ Expired</option>
+          </select>
+
+          <select id="vendor-filter" class="filter-select">
+            <option value="ALL">Semua Vendor</option>
+          </select>
+        </div>
+
+        <div class="action-buttons">
+          <div class="view-tabs">
+            <button class="view-tab-btn active" id="btn-view-grouped">Grup Tiket</button>
+            <button class="view-tab-btn" id="btn-view-flat">Tabel Site</button>
+          </div>
+
+          <button class="btn btn-secondary btn-sm" id="btn-open-upload">
+            📤 Upload Excel/CSV
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-export-csv" title="Download data saat ini ke CSV">
+            📥 Export CSV
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-download-template" title="Download template format kolom Excel">
+            📄 Template
+          </button>
+        </div>
+      </div>
+
+      <!-- Tickets Card Container (Grouped View) -->
+      <div id="tickets-container" class="ticket-list">
+        <!-- Rendered by app.js -->
+      </div>
+
+      <!-- Flat Table Container -->
+      <div id="flat-table-container" style="display: none; margin-top: 10px;">
+        <!-- Rendered by app.js -->
+      </div>
+
+    </section>
+
+    <!-- ==========================================
+         TAB 2: REALTIME MONITOR (EXTENSIBLE)
+         ========================================== -->
+    <section id="section-realtime" class="tab-content" style="display: none;">
+      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <div>
+            <h3 style="font-size: 16px; margin-bottom: 4px;">⚡ Realtime Telemetry & Data Stream</h3>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              Modul ini disiapkan untuk data realtime yang nantinya akan kamu upload/stream. Terhubung ke status CSR, IP Loopback, Latency, dan BGP status.
+            </p>
+          </div>
+          <div>
+            <button id="btn-toggle-live-telemetry" class="btn btn-primary btn-sm">▶️ Mulai Live Simulation</button>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-primary); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: var(--text-dim); border: 1px dashed var(--border-color);">
+          💡 <strong>Tips:</strong> Nantinya kamu bisa upload data JSON atau CSV telemetry berkala lewat script, curl, atau form upload, dan dashboard ini langsung update realtime tanpa reload!
+        </div>
+      </div>
+
+      <div id="realtime-list-container">
+        <!-- Rendered by app.js -->
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 3: BACKUP & SNAPSHOT MANAGER
+         ========================================== -->
+    <section id="section-backups" class="tab-content" style="display: none;">
+      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; margin-bottom: 6px;">💾 Backup & Restore Mandiri</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+          Simpan seluruh database tiket dan konfigurasi ke file backup JSON, atau restore kapan saja jika ada perubahan.
+        </p>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+          <button id="btn-download-json-backup" class="btn btn-primary">
+            📥 Download Backup (JSON)
+          </button>
+          
+          <button id="btn-restore-json-file" class="btn btn-secondary">
+            📤 Restore dari File JSON
+          </button>
+          <input type="file" id="input-restore-json" accept=".json" style="display: none;">
+        </div>
+      </div>
+
+      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
+        <h3 style="font-size: 16px; margin-bottom: 6px;">🔄 Riwayat Auto-Snapshot (Safety Rollback)</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+          Setiap kali kamu import file baru atau ubah status, sistem otomatis mencatat snapshot. Jika ada salah import, cukup klik tombol rollback.
+        </p>
+
+        <div id="snapshots-list-container">
+          <!-- Rendered by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================
+         TAB 4: SLA & REMINDER SETTINGS
+         ========================================== -->
+    <section id="section-settings" class="tab-content" style="display: none;">
+      <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; max-width: 600px;">
+        <h3 style="font-size: 16px; margin-bottom: 6px;">⚙️ Aturan Periode & Reminder SLA</h3>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+          Aturan default sesuai instruksi: XLWO berlaku 7 hari (reminder H-5), RFC berlaku 27 hari (reminder H-25). Kamu bisa ubah nilainya di sini kapan saja.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Nama Aplikasi / Dashboard</label>
+          <input type="text" id="set-app-name" class="form-control">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
+          <div class="form-group">
+            <label class="form-label">XLWO: Masa Berlaku (Hari)</label>
+            <input type="number" id="set-xlwo-validity" class="form-control" value="7">
+            <small style="color: var(--text-dim); font-size: 11px;">Default: 7 hari</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">XLWO: Mulai Reminder (H- Hari)</label>
+            <input type="number" id="set-xlwo-reminder" class="form-control" value="5">
+            <small style="color: var(--text-dim); font-size: 11px;">Default: H-5 sebelum expire</small>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
+          <div class="form-group">
+            <label class="form-label">RFC: Masa Berlaku (Hari)</label>
+            <input type="number" id="set-rfc-validity" class="form-control" value="27">
+            <small style="color: var(--text-dim); font-size: 11px;">Default: 27 hari</small>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">RFC: Mulai Reminder (H- Hari)</label>
+            <input type="number" id="set-rfc-reminder" class="form-control" value="25">
+            <small style="color: var(--text-dim); font-size: 11px;">Default: H-25 sebelum expire</small>
+          </div>
+        </div>
+
+        <div style="margin-top: 20px;">
+          <button id="btn-save-settings" class="btn btn-primary">Simpan Pengaturan</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================
+       MOBILE BOTTOM NAVIGATION BAR
+       ========================================== -->
+  <nav class="mobile-nav">
+    <button class="mobile-nav-item active" data-tab="tickets">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4zm2 4v10h12V8H6zm2 2h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+      <span>Tiket</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="realtime">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+      <span>Realtime</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="backups">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+      <span>Backup</span>
+    </button>
+    <button class="mobile-nav-item" data-tab="settings">
+      <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      <span>Setting</span>
+    </button>
+  </nav>
+
+  <!-- ==========================================
+       MODAL 1: PASTE LANGSUNG DARI EXCEL
+       ========================================== -->
+  <div class="modal-overlay" id="modal-paste-excel">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">📋 Paste Tabel dari Excel</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Buka file Excel kamu, blok tabel (termasuk baris judul kolom), tekan <code>Ctrl+C</code>, lalu paste (<code>Ctrl+V</code>) di kotak bawah ini:
+        </p>
+
+        <div class="form-group">
+          <textarea id="paste-textarea" class="form-control" placeholder="No	Vendor	SOW	Province	Kabupaten	Tower ID	Site ID	Site Name..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Metode Penggabungan Data:</label>
+          <div class="radio-cards">
+            <label class="radio-card selected">
+              <input type="radio" name="paste-import-mode" value="MERGE" checked>
+              <div>
+                <strong>Smart Merge (Rekomendasi)</strong>
+                <div style="font-size: 11px; color: var(--text-dim);">Update baris tiket yang cocok, tambahkan baris baru tanpa menghapus catatan lama.</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="paste-import-mode" value="REPLACE">
+              <div>
+                <strong>Ganti Semua Data (Overwrite)</strong>
+                <div style="font-size: 11px; color: var(--text-dim);">Hapus semua data tiket lama dan ganti penuh dengan hasil paste.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-close-modal">Batal</button>
+        <button class="btn btn-primary" id="btn-process-paste">Proses & Simpan Data</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 2: UPLOAD FILE EXCEL / CSV
+       ========================================== -->
+  <div class="modal-overlay" id="modal-upload-file">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">📤 Upload File Excel / CSV</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="dropzone" id="file-dropzone">
+          <div class="dropzone-icon">📁</div>
+          <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">Klik untuk pilih file atau Drag & Drop</div>
+          <div style="font-size: 12px; color: var(--text-muted);">Mendukung file .xlsx, .xls, .csv</div>
+          <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label class="form-label">Metode Import:</label>
+          <div class="radio-cards">
+            <label class="radio-card selected">
+              <input type="radio" name="file-import-mode" value="MERGE" checked>
+              <div>
+                <strong>Smart Merge</strong>
+                <div style="font-size: 11px; color: var(--text-dim);">Update site yang sama, pertahankan data lain.</div>
+              </div>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="file-import-mode" value="REPLACE">
+              <div>
+                <strong>Overwrite</strong>
+                <div style="font-size: 11px; color: var(--text-dim);">Ganti seluruh database tiket saat ini.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-close-modal">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 3: UBAH STATUS SITE
+       ========================================== -->
+  <div class="modal-overlay" id="modal-edit-status">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <div class="modal-title">✏️ Ubah Status Site</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px; color: var(--text-main);" id="edit-site-name">-</div>
+
+        <div class="form-group">
+          <label class="form-label">Pilih Status Baru:</label>
+          <select id="edit-status-select" class="form-control" style="font-size: 14px; font-weight: 600;">
+            <option value="done">DONE (Selesai)</option>
+            <option value="partial">PARTIAL (Perlu Lanjutan)</option>
+            <option value="pending">PENDING (Belum Dikerjakan)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catatan Tambahan (Opsional):</label>
+          <textarea id="edit-notes-input" class="form-control" style="min-height: 80px;" placeholder="Contoh: Perlu MOP revisi dari tim core, dilanjut besok malam..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-close-modal">Batal</button>
+        <button class="btn btn-primary" id="btn-save-status">Simpan Perubahan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL 4: PENGATURAN REALTIME CLOUD SYNC (FIREBASE)
+       ========================================== -->
+  <div class="modal-overlay" id="modal-cloud-sync">
+    <div class="modal-content" style="max-width: 560px;">
+      <div class="modal-header">
+        <div class="modal-title">🔥 Hubungkan Google Firebase (Realtime Sync)</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Cukup salin dan tempelkan <strong>firebaseConfig</strong> dari Firebase Console di bawah. Layar HP dan Laptop kamu akan langsung terhubung realtime via Google Firestore!
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Paste Firebase Config (JSON / Code Block):</label>
+          <textarea id="input-firebase-config" class="form-control" style="min-height: 140px; font-family: monospace; font-size: 11px;" placeholder='const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "proyek-anda.firebaseapp.com",
+  projectId: "proyek-anda",
+  storageBucket: "proyek-anda.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
+};'></textarea>
+        </div>
+
+        <div style="background: var(--bg-primary); border: 1px dashed var(--border-color); border-radius: var(--radius-sm); padding: 12px; font-size: 11px;">
+          <div style="font-weight: 700; color: #f97316; margin-bottom: 4px;">🛠️ Panduan Singkat 1 Menit Ambil Config di Firebase:</div>
+          <ol style="margin-left: 18px; line-height: 1.6; color: var(--text-muted);">
+            <li>Buka <a href="https://console.firebase.google.com" target="_blank" style="color: var(--primary);">console.firebase.google.com</a> dan buat project baru (gratis).</li>
+            <li>Klik <strong>Build ➔ Firestore Database</strong>, pilih <strong>Create Database</strong> (pilih "Start in test mode").</li>
+            <li>Buka <strong>Project Overview (ikon roda gigi ⚙️) ➔ Project settings</strong>.</li>
+            <li>Scroll ke bawah ke bagian <em>"Your apps"</em>, klik ikon Web <strong>`&lt;/&gt;`</strong>, beri nama web, lalu salin blok <strong>firebaseConfig</strong> ke kotak di atas!</li>
+          </ol>
+        </div>
+
+        <div id="cloud-test-result" style="margin-top: 12px; font-size: 12px; display: none;"></div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn btn-danger btn-sm" id="btn-disconnect-cloud">Putuskan Firebase</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-close-modal">Tutup</button>
+          <button class="btn btn-primary" id="btn-save-cloud-config">Hubungkan Firebase & Sinkron</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Core Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/firebaseSync.js"></script>
+  <script src="js/ticketTracker.js"></script>
+  <script src="js/realtimeData.js"></script>
+  <script src="js/backupManager.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
