@@ -1367,6 +1367,117 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- GOOGLE SPREADSHEET LIVE SYNC CONTROLLER ---
+  const modalGsheets = document.getElementById('modal-gsheets');
+  const btnOpenGsheets = document.getElementById('btn-open-gsheets');
+  const inputGsheetMaster = document.getElementById('gsheet-master-url');
+  const inputGsheetNe = document.getElementById('gsheet-ne-url');
+  const btnDoGsheetSync = document.getElementById('btn-do-gsheet-sync');
+  const gsheetSyncStatus = document.getElementById('gsheet-sync-status');
+  const gsheetLastSyncLbl = document.getElementById('gsheet-last-sync-lbl');
+
+  if (btnOpenGsheets && modalGsheets) {
+    btnOpenGsheets.addEventListener('click', () => {
+      if (inputGsheetMaster) {
+        inputGsheetMaster.value = localStorage.getItem('tt_gsheet_master_url') || '';
+      }
+      if (inputGsheetNe) {
+        inputGsheetNe.value = localStorage.getItem('tt_gsheet_ne_url') || '';
+      }
+      const lastSync = localStorage.getItem('tt_gsheet_last_sync');
+      if (gsheetLastSyncLbl) {
+        gsheetLastSyncLbl.textContent = lastSync ? `Terakhir sinkron: ${lastSync}` : 'Belum pernah sinkron';
+      }
+      if (gsheetSyncStatus) {
+        gsheetSyncStatus.style.display = 'none';
+      }
+      modalGsheets.classList.add('active');
+    });
+  }
+
+  if (btnDoGsheetSync) {
+    btnDoGsheetSync.addEventListener('click', async () => {
+      const masterUrl = (inputGsheetMaster ? inputGsheetMaster.value : '').trim();
+      const neUrl = (inputGsheetNe ? inputGsheetNe.value : '').trim();
+
+      if (!masterUrl) {
+        alert('Masukkan minimal Link Google Sheets untuk Data Master (33 Kolom).');
+        return;
+      }
+
+      const origBtnText = btnDoGsheetSync.innerHTML;
+      btnDoGsheetSync.disabled = true;
+      btnDoGsheetSync.innerHTML = '⏳ Menghubungkan Google Sheets...';
+
+      if (gsheetSyncStatus) {
+        gsheetSyncStatus.style.display = 'block';
+        gsheetSyncStatus.style.background = 'rgba(59, 130, 246, 0.15)';
+        gsheetSyncStatus.style.color = '#60a5fa';
+        gsheetSyncStatus.innerHTML = '🔄 Mengunduh dan memproses Data Master dari spreadsheet...';
+      }
+
+      try {
+        // Simpan URL agar user tidak perlu ketik ulang
+        localStorage.setItem('tt_gsheet_master_url', masterUrl);
+        if (neUrl) localStorage.setItem('tt_gsheet_ne_url', neUrl);
+
+        // 1. Fetch & Parse Data Master
+        const masterCsv = await window.emailGenerator.fetchGSheet(masterUrl);
+        const parsedMaster = window.emailGenerator.parseMasterClipboard(masterCsv);
+        if (parsedMaster.length === 0) {
+          throw new Error('Data Master di Google Sheet kosong atau tidak memiliki baris data.');
+        }
+        window.emailGenerator.saveMaster(parsedMaster);
+
+        // 2. Fetch & Parse Data NE jika diisi
+        let neCount = 0;
+        if (neUrl) {
+          if (gsheetSyncStatus) gsheetSyncStatus.innerHTML = '🔄 Mengunduh Data Lampiran NE dari spreadsheet...';
+          const neCsv = await window.emailGenerator.fetchGSheet(neUrl);
+          const parsedNe = window.emailGenerator.parseNeClipboard(neCsv);
+          if (parsedNe.length > 0) {
+            window.emailGenerator.saveNe(parsedNe);
+            neCount = parsedNe.length;
+          }
+        }
+
+        const nowStr = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        localStorage.setItem('tt_gsheet_last_sync', `${new Date().toLocaleDateString('id-ID')} ${nowStr}`);
+        if (gsheetLastSyncLbl) gsheetLastSyncLbl.textContent = `Terakhir sinkron: Hari ini ${nowStr}`;
+
+        if (gsheetSyncStatus) {
+          gsheetSyncStatus.style.background = 'rgba(16, 185, 129, 0.2)';
+          gsheetSyncStatus.style.color = '#34d399';
+          gsheetSyncStatus.innerHTML = `✅ Berhasil sinkron! Ditemukan <strong>${parsedMaster.length} baris Master</strong>${neCount > 0 ? ` & <strong>${neCount} baris NE</strong>` : ''}.`;
+        }
+
+        showToast(`📊 Sinkronisasi Google Sheets berhasil (${parsedMaster.length} site master)!`, 'success');
+
+        // Re-render seluruh dashboard
+        renderOverviewAndGoals();
+        renderGeneratorUI();
+
+        // Auto close setelah 1.5 detik
+        setTimeout(() => {
+          if (modalGsheets) modalGsheets.classList.remove('active');
+        }, 1500);
+
+      } catch (err) {
+        console.error('Google Sheets Sync Error:', err);
+        if (gsheetSyncStatus) {
+          gsheetSyncStatus.style.display = 'block';
+          gsheetSyncStatus.style.background = 'rgba(239, 68, 68, 0.2)';
+          gsheetSyncStatus.style.color = '#f87171';
+          gsheetSyncStatus.innerHTML = `❌ ${err.message}`;
+        }
+        alert('Gagal sinkron Google Sheets: ' + err.message);
+      } finally {
+        btnDoGsheetSync.disabled = false;
+        btnDoGsheetSync.innerHTML = origBtnText;
+      }
+    });
+  }
+
   // Modal: Push to Ticket Tracker
   if (btnPushToTracker && modalPushTracker) {
     btnPushToTracker.addEventListener('click', () => {

@@ -313,6 +313,9 @@
             <button class="btn btn-secondary btn-sm" id="btn-open-paste-ne">
               📎 Paste Data NE (3 Kolom)
             </button>
+            <button class="btn btn-secondary btn-sm" id="btn-open-gsheets" style="border-color: #10b981; color: #10b981;">
+              📊 Link Google Sheets
+            </button>
             <button class="btn btn-secondary btn-sm" id="btn-load-demo-generator">
               🔄 Load Contoh Demo
             </button>
@@ -813,6 +816,53 @@
       <div class="modal-footer">
         <button class="btn btn-secondary btn-close-modal">Batal</button>
         <button class="btn btn-primary" id="btn-process-ne-paste">Simpan Database NE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Link Google Sheets -->
+  <div class="modal-overlay" id="modal-gsheets">
+    <div class="modal-content" style="max-width: 560px;">
+      <div class="modal-header">
+        <div class="modal-title">📊 Link Google Spreadsheet (Database Live)</div>
+        <button class="btn btn-secondary btn-sm btn-icon btn-close-modal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+          Tautkan link Google Spreadsheet kamu agar web ini otomatis membaca Data Master &amp; Data NE terbaru tanpa perlu bolak-balik copy paste!
+        </p>
+
+        <div style="background: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981; padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;">
+          <strong>⚡ Petunjuk Cepat (10 Detik):</strong><br>
+          Di Google Sheets, klik tombol <strong>Share / Bagikan</strong> di kanan atas ➔ Ubah akses menjadi <strong>"Anyone with the link can view" (Siapa saja yang memiliki link dapat melihat)</strong>.
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" style="font-weight: 600;">Link Tab Data Master (33 Kolom):</label>
+          <input type="url" id="gsheet-master-url" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=0">
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 3px;">
+            Bisa salin URL address bar browser saat membuka tab Master Data.
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" style="font-weight: 600;">Link Tab Data Lampiran NE (3 Kolom) <span style="font-weight: normal; color: var(--text-dim);">(Opsional)</span>:</label>
+          <input type="url" id="gsheet-ne-url" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=12345678">
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 3px;">
+            Jika data NE berada di tab sheet terpisah, salin URL saat tab NE aktif (memiliki <code>#gid=...</code>).
+          </div>
+        </div>
+
+        <div id="gsheet-sync-status" style="display:none; padding: 10px 14px; border-radius: 6px; font-size: 12px; margin-top: 10px;"></div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 11px; color: var(--text-dim);" id="gsheet-last-sync-lbl">Belum pernah sinkron</span>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-secondary btn-close-modal">Tutup</button>
+          <button class="btn btn-primary" id="btn-do-gsheet-sync" style="background: #10b981; border-color: #10b981;">
+            ⚡ Tarik &amp; Sinkron Sekarang
+          </button>
+        </div>
       </div>
     </div>
   </div>

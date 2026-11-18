@@ -253,6 +253,49 @@ class EmailGeneratorManager {
     return records;
   }
 
+  // --- GOOGLE SPREADSHEET DIRECT SYNC ---
+  formatGSheetUrl(rawUrl, defaultGid = '0') {
+    if (!rawUrl || !rawUrl.trim()) return null;
+    let url = rawUrl.trim();
+
+    if (url.includes('format=csv') || url.includes('output=csv') || url.includes('/gviz/tq?tqx=out:csv')) {
+      return url;
+    }
+
+    const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+    if (!match) return url;
+    const docId = match[1];
+
+    const gidMatch = url.match(/[#&?]gid=([0-9]+)/);
+    const gid = gidMatch ? gidMatch[1] : defaultGid;
+
+    return `https://docs.google.com/spreadsheets/d/${docId}/gviz/tq?tqx=out:csv&gid=${gid}`;
+  }
+
+  async fetchGSheet(url) {
+    const csvUrl = this.formatGSheetUrl(url);
+    if (!csvUrl) throw new Error('URL Google Sheets tidak valid.');
+
+    try {
+      const resp = await fetch(csvUrl);
+      if (!resp.ok) {
+        throw new Error(`Gagal membaca Google Sheets (HTTP ${resp.status}). Pastikan sharing sheet diset ke "Anyone with the link can view".`);
+      }
+      return await resp.text();
+    } catch (err) {
+      const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (match) {
+        const docId = match[1];
+        const gidMatch = url.match(/[#&?]gid=([0-9]+)/);
+        const gid = gidMatch ? gidMatch[1] : '0';
+        const fallbackUrl = `https://docs.google.com/spreadsheets/d/${docId}/export?format=csv&id=${docId}&gid=${gid}`;
+        const fallbackResp = await fetch(fallbackUrl);
+        if (fallbackResp.ok) return await fallbackResp.text();
+      }
+      throw err;
+    }
+  }
+
   // Hitung berapa banyak NE yang terdaftar untuk Site ID tertentu
   getNeCountForSite(siteId) {
     if (!siteId) return 0;
